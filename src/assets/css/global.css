@@ -1,0 +1,20 @@
+/*全局样式表*/
+
+html, body, #app {
+    height: 100%;
+    padding: 0;
+    margin: 0;
+}
+
+.el-button {
+    margin-top: 10px;
+}
+
+.el-notification.left{
+    /*background-color: #b8e3cc;*/
+    left: 240px;
+    /*left: 33%;*/
+    position: fixed;
+    width: 400px;
+}
+
