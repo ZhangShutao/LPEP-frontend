@@ -26,7 +26,12 @@ import {
   Drawer,
   Dialog,
   Table,
-  TableColumn
+  TableColumn,
+  Radio,
+  RadioGroup,
+  Breadcrumb,
+  BreadcrumbItem,
+  Pagination
 } from 'element-ui'
 
 Vue.use(Button)
@@ -53,6 +58,11 @@ Vue.use(Drawer)
 Vue.use(Dialog)
 Vue.use(Table)
 Vue.use(TableColumn)
+Vue.use(Radio)
+Vue.use(RadioGroup)
+Vue.use(Breadcrumb)
+Vue.use(BreadcrumbItem)
+Vue.use(Pagination)
 // 全局挂载
 Vue.prototype.$message = Message
 Vue.prototype.$confirm = MessageBox.confirm
