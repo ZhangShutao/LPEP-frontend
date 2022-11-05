@@ -1,9 +1,11 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 import Login from '../components/Login'
-import Home from '../components/Home'
-import ProgramReading from '../components/ProgramReading'
-import ExperimentManage from '../components/ExperimentManage'
+import UserHome from '../components/user/UserHome'
+import UserWelcome from '../components/user/UserWelcome'
+import UserInfo from '../components/user/UserInfo'
+import ExperimentToBeParticipatedIn from '../components/user/ExperimentToParticipate'
+import TextbookDownload from '../components/user/TextbookDownload'
 
 Vue.use(VueRouter)
 
@@ -11,12 +13,14 @@ const routes = [
   { path: '/', redirect: '/login' },
   { path: '/login', component: Login },
   {
-    path: '/home',
-    component: Home,
-    // redirect: '/welcome',
+    path: '/user',
+    component: UserHome,
+    redirect: '/welcome',
     children: [
-      { path: '/experiment-manage', component: ExperimentManage },
-      { path: '/program-reading', component: ProgramReading }
+      { path: '/welcome', component: UserWelcome },
+      { path: 'info', component: UserInfo },
+      { path: 'experiment-to-do', component: ExperimentToBeParticipatedIn },
+      { path: 'textbook-download', component: TextbookDownload }
     ]
   }
 ]

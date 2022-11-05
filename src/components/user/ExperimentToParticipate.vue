@@ -1,11 +1,12 @@
 <template>
-<!--管理员用户界面（用于管理实验）-->
-
+  <div>
+    待参与实验列表
+  </div>
 </template>
 
 <script>
 export default {
-  name: "Admin"
+  name: 'ExperimentToBeParticipatedIn'
 }
 </script>
 

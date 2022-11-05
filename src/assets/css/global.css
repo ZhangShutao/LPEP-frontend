@@ -10,7 +10,19 @@ html, body, #app {
     margin-top: 10px;
 }
 
-/*展示区域*/
+/*侧边栏右侧展示区域*/
+.content-box {
+    position: absolute;
+    left: 250px;
+    right: 0;
+    top: 60px;
+    bottom: 30px;
+    padding-bottom: 30px;
+    background: #f0f0f0;
+}
+
+
+/*展示区域内部*/
 .container {
     background: #fff;
     border: 1px solid #ddd;
@@ -22,19 +34,6 @@ html, body, #app {
     box-sizing: border-box;
 }
 
-/*侧边栏+展示区域*/
-.content-box {
-    position: absolute;
-    left: 200px;
-    right: 0;
-    top: 60px;
-    bottom: 30px;
-    padding-bottom: 30px;
-    -webkit-transition: left .3s ease-in-out;
-    transition: left .3s ease-in-out;
-    background: #f0f0f0;
-}
-
 .el-notification.left{
     /*background-color: #b8e3cc;*/
     left: 240px;
@@ -42,4 +41,3 @@ html, body, #app {
     position: fixed;
     width: 400px;
 }
-
