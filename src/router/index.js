@@ -9,6 +9,8 @@ import TextbookDownload from '../components/user/TextbookDownload'
 import AdminHome from '../components/admin/AdminHome'
 import AdminWelcome from '../components/admin/AdminWelcome'
 import AdminInfo from '../components/admin/AdminInfo'
+import ExperimentTable from '../components/admin/ExperimentTable'
+import ParticipantsTable from '../components/admin/ParticipantsTable'
 
 Vue.use(VueRouter)
 
@@ -33,8 +35,8 @@ const routes = [
     children: [
       { path: 'welcome', component: AdminWelcome },
       { path: 'info', component: AdminInfo },
-      { path: 'experiment-to-do', component: ExperimentToBeParticipatedIn },
-      { path: 'textbook-download', component: TextbookDownload }
+      { path: 'experiments-table', component: ExperimentTable },
+      { path: 'participants-table', component: ParticipantsTable }
     ]
   }
 ]

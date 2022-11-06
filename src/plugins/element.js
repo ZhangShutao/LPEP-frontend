@@ -33,7 +33,9 @@ import {
   BreadcrumbItem,
   Pagination,
   Divider,
-  Link
+  Link,
+  Tabs,
+  TabPane
 } from 'element-ui'
 
 Vue.use(Button)
@@ -67,6 +69,8 @@ Vue.use(BreadcrumbItem)
 Vue.use(Pagination)
 Vue.use(Divider)
 Vue.use(Link)
+Vue.use(Tabs)
+Vue.use(TabPane)
 // 全局挂载
 Vue.prototype.$message = Message
 Vue.prototype.$confirm = MessageBox.confirm
