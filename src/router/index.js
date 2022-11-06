@@ -11,12 +11,15 @@ import AdminWelcome from '../components/admin/AdminWelcome'
 import AdminInfo from '../components/admin/AdminInfo'
 import ExperimentTable from '../components/admin/ExperimentTable'
 import ParticipantsTable from '../components/admin/ParticipantsTable'
+import ProgramReading from '../components/ProgramReading'
 
 Vue.use(VueRouter)
 
 const routes = [
+  // 登录页面路由
   { path: '/', redirect: '/login' },
   { path: '/login', component: Login },
+  // 用户页面路由
   {
     path: '/user',
     component: UserHome,
@@ -28,6 +31,7 @@ const routes = [
       { path: 'textbook-download', component: TextbookDownload }
     ]
   },
+  // 管理员页面路由
   {
     path: '/admin',
     component: AdminHome,
@@ -38,7 +42,9 @@ const routes = [
       { path: 'experiments-table', component: ExperimentTable },
       { path: 'participants-table', component: ParticipantsTable }
     ]
-  }
+  },
+  // 程序阅读路由
+  { path: '/program-reading', component: ProgramReading }
 ]
 
 const router = new VueRouter({

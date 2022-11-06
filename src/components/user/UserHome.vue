@@ -1,12 +1,8 @@
 <template>
   <el-container class="home-container">
     <!--头部区域-->
-    <el-header class="header-box">
-      <div>
-        <img src="../../assets/seu.jpg" class="home-logo">
-        <span>逻辑程序测试平台</span>
-      </div>
-      <el-button type="info" @click="logout">退出</el-button>
+    <el-header>
+      <page-header></page-header>
     </el-header>
     <el-container>
       <!--侧边栏-->
@@ -28,10 +24,12 @@
 
 <script>
 import UserSideBar from './UserSideBar'
+import PageHeader from '../common/PageHeader'
 export default {
   name: 'UserHome',
   components: {
-    UserSideBar
+    UserSideBar,
+    PageHeader
   },
   data () {
     return {
@@ -51,43 +49,12 @@ export default {
   height: 100%;
 }
 
-.header-box {
-  background-color: #373d41;
-  display: flex;
-  justify-content: space-between;
-  padding-left: 0;
-  height: 70px;
-  align-items: center;
-  color: #fff;
-  font-size: 20px;
-
-  > div {
-    display: flex;
-    align-items: center;
-  }
-
-  span {
-    margin-left: 15px;
-  }
-}
-
 .el-footer {
   background-color: #d7dce7;
   color: black;
   display:flex;
   align-items: center;
   justify-content: center;
-}
-
-.home-logo {
-  height: 100%;
-  width: 60px;
-  border-radius: 50%;
-}
-
-.el-main {
-  overflow: visible;
-  padding: 18px;
 }
 
 .menu-title {

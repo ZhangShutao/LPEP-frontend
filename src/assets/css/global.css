@@ -6,14 +6,9 @@ html, body, #app {
     margin: 0;
 }
 
-.el-button {
-    /*margin-top: 10px;*/
-}
-
-/*分页*/
-.pagination {
-    margin: 20px 0;
-    text-align: right;
+/*页面顶部区域*/
+.el-header{
+    padding: 0;
 }
 
 /*侧边栏右侧展示区域*/
@@ -49,4 +44,14 @@ html, body, #app {
     /*left: 33%;*/
     position: fixed;
     width: 400px;
+}
+
+.el-button {
+    /*margin-top: 10px;*/
+}
+
+/*分页*/
+.pagination {
+    margin: 20px 0;
+    text-align: right;
 }
