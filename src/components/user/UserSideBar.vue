@@ -3,10 +3,7 @@
     <!--侧边栏菜单-->
     <el-menu
       class="sidebar-el-menu"
-      background-color="#333744"
-      text-color="#fff"
-      active-text-color="#409EFF"
-      :collapse="collapse"
+      :collapse="isCollapse"
       router>
       <template v-for="item in menulist">
         <template v-if="item.subs">
@@ -40,7 +37,7 @@ export default {
   name: 'UserSideBar',
   data () {
     return {
-      collapse: false,
+      isCollapse: false,
       menulist: [
         {
           index: '1',
@@ -82,7 +79,4 @@ export default {
 </script>
 
 <style lang="less" scoped>
-.sidebar-el-menu:not(.el-menu--collapse) {
-  width: 250px;
-}
 </style>

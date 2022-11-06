@@ -6,6 +6,9 @@ import UserWelcome from '../components/user/UserWelcome'
 import UserInfo from '../components/user/UserInfo'
 import ExperimentToBeParticipatedIn from '../components/user/ExperimentToParticipate'
 import TextbookDownload from '../components/user/TextbookDownload'
+import AdminHome from '../components/admin/AdminHome'
+import AdminWelcome from '../components/admin/AdminWelcome'
+import AdminInfo from '../components/admin/AdminInfo'
 
 Vue.use(VueRouter)
 
@@ -15,10 +18,21 @@ const routes = [
   {
     path: '/user',
     component: UserHome,
-    redirect: '/welcome',
+    redirect: '/user/welcome',
     children: [
-      { path: '/welcome', component: UserWelcome },
+      { path: 'welcome', component: UserWelcome },
       { path: 'info', component: UserInfo },
+      { path: 'experiment-to-do', component: ExperimentToBeParticipatedIn },
+      { path: 'textbook-download', component: TextbookDownload }
+    ]
+  },
+  {
+    path: '/admin',
+    component: AdminHome,
+    redirect: '/admin/welcome',
+    children: [
+      { path: 'welcome', component: AdminWelcome },
+      { path: 'info', component: AdminInfo },
       { path: 'experiment-to-do', component: ExperimentToBeParticipatedIn },
       { path: 'textbook-download', component: TextbookDownload }
     ]

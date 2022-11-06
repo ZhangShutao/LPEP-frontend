@@ -7,31 +7,40 @@ html, body, #app {
 }
 
 .el-button {
-    margin-top: 10px;
+    /*margin-top: 10px;*/
+}
+
+/*分页*/
+.pagination {
+    margin: 20px 0;
+    text-align: right;
 }
 
 /*侧边栏右侧展示区域*/
 .content-box {
     position: absolute;
-    left: 250px;
+    left: 300px;
     right: 0;
     top: 60px;
     bottom: 30px;
     padding-bottom: 30px;
-    background: #f0f0f0;
+    background-color: #ffffff;
 }
 
+.sidebar-box {
+    border-right: 1px #eaedf1 solid;
+}
 
-/*展示区域内部*/
+.sidebar-box .sidebar-el-menu:not(.el-menu--collapse) {
+    width: 300px;
+}
+
+/*右侧展示区域的内部*/
 .container {
+    padding: 30px;
     background: #fff;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    width: auto;
-    height: 100%;
-    padding: 10px;
-    overflow-y: scroll;
-    box-sizing: border-box;
+    /*border: 1px solid #ddd;*/
+    /*border-radius: 5px;*/
 }
 
 .el-notification.left{

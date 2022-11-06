@@ -85,16 +85,7 @@ export default {
   border-radius: 50%;
 }
 
-.el-aside {
-  background-color: #333744;
-
-  .el-menu {
-    border-right: none;
-  }
-}
-
 .el-main {
-  background-color: #eaedf1;
   overflow: visible;
   padding: 18px;
 }

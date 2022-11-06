@@ -31,7 +31,9 @@ import {
   RadioGroup,
   Breadcrumb,
   BreadcrumbItem,
-  Pagination
+  Pagination,
+  Divider,
+  Link
 } from 'element-ui'
 
 Vue.use(Button)
@@ -63,6 +65,8 @@ Vue.use(RadioGroup)
 Vue.use(Breadcrumb)
 Vue.use(BreadcrumbItem)
 Vue.use(Pagination)
+Vue.use(Divider)
+Vue.use(Link)
 // 全局挂载
 Vue.prototype.$message = Message
 Vue.prototype.$confirm = MessageBox.confirm

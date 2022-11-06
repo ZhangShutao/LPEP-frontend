@@ -20,8 +20,8 @@
         </el-form-item>
         <!--按钮区域-->
         <el-form-item class="btns">
-          <el-button type="primary" @click="login">测试人员登录</el-button>
-          <el-button type="success" @click="login">管理人员登录</el-button>
+          <el-button type="primary" @click="userLogin">测试人员登录</el-button>
+          <el-button type="success" @click="adminLogin">管理人员登录</el-button>
           <el-button type="info" @click="resetLoginForm">重置</el-button>
         </el-form-item>
       </el-form>
@@ -42,7 +42,8 @@ export default {
     }
   },
   methods: {
-    async login () {
+    // 普通用户登录
+    async userLogin () {
       // 可以在登录之前实现预验证，这里没有进行验证
 
       // 向后台/login接口发起登录请求
@@ -52,7 +53,20 @@ export default {
       // window.sessionStorage.setItem('token', res.data.token)
       // window.sessionStorage.setItem('token', 'this is token')
       // 跳转到Home主页
-      this.$router.push('/home')
+      this.$router.push('/user')
+    },
+    // 管理员用户登录
+    async adminLogin () {
+      // 可以在登录之前实现预验证，这里没有进行验证
+
+      // 向后台/login接口发起登录请求
+      // const { data: res } = await this.$http.post('login', this.loginForm)
+      // if (res.meta.status !== 200) return this.$message.error('登录失败！')
+      // this.$message.success('登录成功')
+      // window.sessionStorage.setItem('token', res.data.token)
+      // window.sessionStorage.setItem('token', 'this is token')
+      // 跳转到Home主页
+      this.$router.push('/admin')
     },
     // 点击重置按钮，重置登录表单
     resetLoginForm () {
