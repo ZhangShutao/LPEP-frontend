@@ -9,12 +9,11 @@
     </div>
     <!--实验列表-->
     <el-table
-      class="table-box"
-      :data="tableData"
+      :data="experimentTableData"
       stripe
       border>
       <!--表头属性(不含状态栏,操作栏)-->
-      <el-table-column v-for="(item, index) in tableItems" :key="index"
+      <el-table-column v-for="(item, index) in experimentTableItems" :key="index"
                        :prop="item.prop"
                        :label="item.label"
                        :width="item.width"
@@ -73,7 +72,7 @@ export default {
   data () {
     return {
 
-      tableItems: [
+      experimentTableItems: [
         {
           prop: 'id',
           label: '序号',
@@ -90,7 +89,7 @@ export default {
           width: 200
         }
       ],
-      tableData: [
+      experimentTableData: [
         {
           id: '1',
           expName: 'ASP测试',

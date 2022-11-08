@@ -67,12 +67,8 @@ export default {
           icon: 'el-icon-tickets',
           subs: [
             {
-              index: '3-1',
-              title: '自学培训教材下载'
-            },
-            {
-              index: '3-1',
-              title: '自学培训教材更新'
+              index: '/admin/textbook-management',
+              title: '自学培训教材管理'
             }
           ]
         },

@@ -1,6 +1,7 @@
 <template>
   <div class="container-header">
-    <span>{{title}}</span>
+    <div class="title">{{title}}</div>
+    <div class="sub-title">{{subTitle}}</div>
     <el-divider></el-divider>
   </div>
 </template>
@@ -9,20 +10,25 @@
 export default {
   name: 'ContainerHeader',
   props: {
-    title: String
+    title: String,
+    subTitle: String
   }
 }
 </script>
 
 <style scoped>
 .container-header {
+  margin-bottom: 5px;
+}
+
+.title {
   font-size: 20px;
   font-weight: bold;
-  line-height: 20px;
-  height: 30px;
-  margin-bottom: 25px;
-  /*width: 100%;*/
-  /*background-color: #63a35c;*/
+}
 
+.sub-title {
+  font-size: 20px;
+  margin-top: 10px;
+  margin-left: 10px;
 }
 </style>

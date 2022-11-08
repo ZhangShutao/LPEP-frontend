@@ -11,7 +11,8 @@ import AdminWelcome from '../components/admin/AdminWelcome'
 import AdminInfo from '../components/admin/AdminInfo'
 import ExperimentTable from '../components/admin/ExperimentTable'
 import ParticipantsTable from '../components/admin/ParticipantsTable'
-import ProgramReading from '../components/ProgramReading'
+import TextbookManagement from '../components/admin/TextbookManagement'
+import Questionaire from '../components/exam/Questionaire'
 
 Vue.use(VueRouter)
 
@@ -40,11 +41,12 @@ const routes = [
       { path: 'welcome', component: AdminWelcome },
       { path: 'info', component: AdminInfo },
       { path: 'experiments-table', component: ExperimentTable },
+      { path: 'textbook-management', component: TextbookManagement },
       { path: 'participants-table', component: ParticipantsTable }
     ]
   },
   // 程序阅读路由
-  { path: '/program-reading', component: ProgramReading }
+  { path: '/questionaire', component: Questionaire }
 ]
 
 const router = new VueRouter({

@@ -4,7 +4,7 @@
       <img src="../../assets/seu.jpg" class="home-logo">
       <span>逻辑程序测试平台</span>
     </div>
-    <el-button type="info" @click="logout">退出</el-button>
+    <el-button type="info">退出</el-button>
   </div>
 </template>
 

@@ -50,6 +50,10 @@ html, body, #app {
     /*margin-top: 10px;*/
 }
 
+.el-form-item .el-select {
+    width: 100%;
+}
+
 /*分页*/
 .pagination {
     margin: 20px 0;
