@@ -35,8 +35,13 @@ import {
   Divider,
   Link,
   Tabs,
-  TabPane
+  TabPane,
+  Loading,
+  TimePicker,
+  DatePicker,
+  Upload
 } from 'element-ui'
+import mavonEditor from 'mavon-editor'
 
 Vue.use(Button)
 Vue.use(Form)
@@ -71,7 +76,13 @@ Vue.use(Divider)
 Vue.use(Link)
 Vue.use(Tabs)
 Vue.use(TabPane)
+Vue.use(Loading)
+Vue.use(TimePicker)
+Vue.use(DatePicker)
+Vue.use(mavonEditor)
+Vue.use(Upload)
 // 全局挂载
 Vue.prototype.$message = Message
 Vue.prototype.$confirm = MessageBox.confirm
+Vue.prototype.$alert = MessageBox.alert
 Vue.prototype.$notify = Notification

@@ -6,6 +6,8 @@ import './plugins/element.js'
 import './assets/fonts/iconfont.css'
 // 导入全局样式表
 import './assets/css/global.css'
+// 导入mavonEditor样式表
+import 'mavon-editor/dist/css/index.css'
 
 Vue.config.productionTip = false
 

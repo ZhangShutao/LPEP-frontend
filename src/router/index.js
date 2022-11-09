@@ -13,6 +13,8 @@ import ExperimentTable from '../components/admin/ExperimentTable'
 import ParticipantsTable from '../components/admin/ParticipantsTable'
 import TextbookManagement from '../components/admin/TextbookManagement'
 import Questionaire from '../components/exam/Questionaire'
+import Programming from '../components/exam/Programming'
+import TimeCount from '../components/common/TimeCount'
 
 Vue.use(VueRouter)
 
@@ -46,7 +48,10 @@ const routes = [
     ]
   },
   // 程序阅读路由
-  { path: '/questionaire', component: Questionaire }
+  { path: '/questionaire', component: Questionaire },
+  // 程序编写路由
+  { path: '/programming', component: Programming },
+  { path: '/timer', component: TimeCount }
 ]
 
 const router = new VueRouter({
