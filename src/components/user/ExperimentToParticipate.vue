@@ -94,6 +94,15 @@ export default {
         pageSize: 10
       }
     }
+  },
+  methods: {
+    handlePageChange () {
+    },
+    // 用户参加实验
+    ParticipateExperiment (index, experiment) {
+      // 跳转做题页面
+      this.$router.push('/exam/questionnaire')
+    }
   }
 }
 </script>

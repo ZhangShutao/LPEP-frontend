@@ -110,6 +110,9 @@ export default {
   components: {
     ContainerHeader
   },
+  created () {
+    this.getAllParticipates()
+  },
   data () {
     return {
       userAddFormVisible: false,
@@ -275,6 +278,14 @@ export default {
     },
     handleSelectionChange (val) {
       this.multipleSelection = val
+    },
+    // 获取所有参试人员
+    getAllParticipates () {
+      // TODO(后端请求)
+    },
+    // 添加参试人员
+    handlerAddlParticipate () {
+      // TODO后端请求
     }
   }
 }

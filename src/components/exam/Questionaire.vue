@@ -7,7 +7,7 @@
       <div v-for="(question, index) in questionList" :key="index">
 
         <!--题干（选择题）-->
-        <el-form-item :label="index + 1 + '. ' + question.content" v-if="question.type == 1">
+        <el-form-item :label="index + 1 + '. ' + question.content" v-if="question.type === 1">
           <!--选项-->
           <el-radio-group v-model="question.choice">
             <el-radio label="A" border>{{JSON.parse(question.option).A}}</el-radio>
@@ -17,7 +17,7 @@
           </el-radio-group>
         </el-form-item>
         <!--题干（问答题）-->
-        <el-form-item :label="index + 1 + '. ' + question.content" v-else-if="question.type == 2">
+        <el-form-item :label="index + 1 + '. ' + question.content" v-else-if="question.type === 2">
           <!--答题区域-->
           <el-input type="textarea" v-model="form.desc" placeholder="请在此作答"></el-input>
         </el-form-item>
@@ -61,6 +61,7 @@ export default {
       this.questionList.forEach((question, index) => {
         console.log(index + ' ' + question.choice)
       })
+      this.$router.push('/exam/programming')
     }
   }
 }

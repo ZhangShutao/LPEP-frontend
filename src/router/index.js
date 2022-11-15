@@ -15,6 +15,7 @@ import TextbookManagement from '../components/admin/TextbookManagement'
 import Questionaire from '../components/exam/Questionaire'
 import Programming from '../components/exam/Programming'
 import TimeCount from '../components/common/TimeCount'
+import Exam from '../components/exam/Exam'
 
 Vue.use(VueRouter)
 
@@ -47,11 +48,17 @@ const routes = [
       { path: 'participants-table', component: ParticipantsTable }
     ]
   },
-  // 程序阅读路由
-  { path: '/questionaire', component: Questionaire },
-  // 程序编写路由
-  { path: '/programming', component: Programming },
-  { path: '/timer', component: TimeCount }
+  // 测试阶段路由
+  {
+    path: '/exam',
+    component: Exam,
+    children: [
+      // 程序阅读路由
+      { path: 'questionnaire', component: Questionaire },
+      { path: 'programming', component: Programming },
+      { path: 'timer', component: TimeCount }
+    ]
+  }
 ]
 
 const router = new VueRouter({
