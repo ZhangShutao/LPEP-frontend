@@ -21,7 +21,7 @@
           <el-button
             size="mini"
             type="danger"
-            @click="ParticipateExperiment(scope.$index, scope.row)">开始(参加)实验
+            @click="participateExperiment(scope.$index, scope.row)">开始(参加)实验
           </el-button>
         </template>
       </el-table-column>
@@ -31,8 +31,8 @@
       <el-pagination
         background
         layout="prev, pager, next"
-        :current-page="query.pageIndex"
-        :page-size="query.pageSize"
+        :current-page="queryInfo.pageIndex"
+        :page-size="queryInfo.pageSize"
         :total="pageTotal"
         @current-change="handlePageChange">
       </el-pagination>
@@ -72,6 +72,13 @@ export default {
           width: 200
         }
       ],
+      // 查询参数
+      queryInfo: {
+        userId: 0,
+        pageIndex: 1,
+        pageSize: 10
+      },
+      pageTotal: 100,
       tableData: [
         {
           id: '1',
@@ -87,19 +94,20 @@ export default {
           Status: '正在进行',
           Operation: '开始实验'
         }
-      ],
-      pageTotal: 100,
-      query: {
-        pageIndex: 1,
-        pageSize: 10
-      }
+      ]
     }
   },
   methods: {
-    handlePageChange () {
+    async getExperimentList () {
+      // const { data: res } = await this.$http.get('user/experstopart', {
+      //   params: this.queryInfo
+      // })
+    },
+    handlePageChange (newPage) {
+      this.queryInfo.pagenum = newPage
     },
     // 用户参加实验
-    ParticipateExperiment (index, experiment) {
+    participateExperiment (index, experiment) {
       // 跳转做题页面
       this.$router.push('/exam/questionnaire')
     }

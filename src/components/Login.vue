@@ -3,7 +3,7 @@
     <div class="login_box">
       <!--图标框-->
       <div class="avatar_box">
-        <img src="../assets/seu.jpg">
+        <img src="../assets/seu.jpg" alt="">
       </div>
       <!--标题框-->
       <div class="login_title">
@@ -20,8 +20,8 @@
         </el-form-item>
         <!--按钮区域-->
         <el-form-item class="btns">
-          <el-button type="primary" @click="userLogin">测试人员登录</el-button>
-          <el-button type="success" @click="adminLogin">管理人员登录</el-button>
+          <el-button type="primary" @click="test">自动生成（测试）</el-button>
+          <el-button type="primary" @click="login">登录</el-button>
           <el-button type="info" @click="resetLoginForm">重置</el-button>
         </el-form-item>
       </el-form>
@@ -42,31 +42,28 @@ export default {
     }
   },
   methods: {
-    // 普通用户登录
-    async userLogin () {
-      // 可以在登录之前实现预验证，这里没有进行验证
-
-      // 向后台/login接口发起登录请求
-      // const { data: res } = await this.$http.post('login', this.loginForm)
-      // if (res.meta.status !== 200) return this.$message.error('登录失败！')
-      // this.$message.success('登录成功')
-      // window.sessionStorage.setItem('token', res.data.token)
-      // window.sessionStorage.setItem('token', 'this is token')
-      // 跳转到Home主页
-      this.$router.push('/user')
+    test () {
+      this.loginForm.username = '22000'
+      this.loginForm.password = 'admin'
     },
-    // 管理员用户登录
-    async adminLogin () {
+    // 用户登录
+    async login () {
       // 可以在登录之前实现预验证，这里没有进行验证
-
-      // 向后台/login接口发起登录请求
-      // const { data: res } = await this.$http.post('login', this.loginForm)
-      // if (res.meta.status !== 200) return this.$message.error('登录失败！')
-      // this.$message.success('登录成功')
-      // window.sessionStorage.setItem('token', res.data.token)
-      // window.sessionStorage.setItem('token', 'this is token')
-      // 跳转到Home主页
-      this.$router.push('/admin')
+      const { data: res } = await this.$http.post('user/login', this.loginForm)
+      if (res.status !== 200 || res.data === null) return this.$message.error('登录失败！')
+      const userInfo = {
+        id: res.data.id,
+        isAdmin: res.data.isAdmin === 1,
+        username: res.data.realname
+      }
+      console.log(userInfo)
+      sessionStorage.setItem('userInfo', JSON.stringify(userInfo))
+      this.$message.success('登录成功')
+      if (res.data.isAdmin === 1) {
+        await this.$router.push('/admin')
+      } else {
+        await this.$router.push('/user')
+      }
     },
     // 点击重置按钮，重置登录表单
     resetLoginForm () {

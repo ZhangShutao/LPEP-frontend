@@ -9,7 +9,16 @@ export default {
   name: 'UserWelcome',
   data () {
     return {
-      username: 'xxx'
+      username: ''
+    }
+  },
+  created () {
+    this.getUserInfo()
+  },
+  methods: {
+    async getUserInfo () {
+      const userInfo = JSON.parse(sessionStorage.getItem('userInfo'))
+      this.username = userInfo.username
     }
   }
 }

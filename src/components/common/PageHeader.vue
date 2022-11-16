@@ -1,16 +1,21 @@
 <template>
   <div class="header-box">
     <div>
-      <img src="../../assets/seu.jpg" class="home-logo">
+      <img src="../../assets/seu.jpg" class="home-logo" alt="">
       <span>逻辑程序测试平台</span>
     </div>
-    <el-button type="info">退出</el-button>
+    <el-button type="info" @click="signOut">退出登录</el-button>
   </div>
 </template>
 
 <script>
 export default {
-  name: 'PageHeader'
+  name: 'PageHeader',
+  methods: {
+    signOut () {
+      this.$router.push('/login')
+    }
+  }
 }
 </script>
 
@@ -20,6 +25,7 @@ export default {
   display: flex;
   justify-content: space-between;
   padding-left: 0;
+  padding-right: 10px;
   height: 60px;
   align-items: center;
   color: #fff;

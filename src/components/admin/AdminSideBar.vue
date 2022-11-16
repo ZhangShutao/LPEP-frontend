@@ -5,7 +5,7 @@
       class="sidebar-el-menu"
       :collapse="isCollapse"
       router>
-      <template v-for="item in menulist">
+      <template v-for="item in menuList">
         <template v-if="item.subs">
           <el-submenu :index="item.index" :key="item.index">
             <template slot="title">
@@ -38,7 +38,7 @@ export default {
   data () {
     return {
       isCollapse: false,
-      menulist: [
+      menuList: [
         {
           index: '1',
           title: '用户',
@@ -53,7 +53,7 @@ export default {
         {
           index: '2',
           title: '实验',
-          icon: 'el-icon-edit',
+          icon: 'el-icon-edit-outline',
           subs: [
             {
               index: '/admin/experiments-table',

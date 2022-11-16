@@ -2,7 +2,7 @@
   <!--用户基本信息组件-->
   <div class="container">
     <container-header title="用户信息"></container-header>
-    <el-descriptions class="description-box" :column="1" :size="size" border>
+    <el-descriptions class="description-box" :column="1" border>
       <el-descriptions-item v-for="(item, index) in items" :key = index>
         <template slot="label">
           <i :class="item.icon"></i>
@@ -23,23 +23,46 @@ export default {
   },
   data () {
     return {
-      items: [
+      account: '',
+      username: '',
+      createdTime: ''
+    }
+  },
+  computed: {
+    items () {
+      return [
         {
           key: '账号',
-          val: '220xxxxx',
+          val: this.account,
           icon: ''
         },
         {
           key: '姓名',
-          val: 'xxxx',
+          val: this.username,
           icon: ''
         },
         {
           key: '创建时间',
-          val: 'xxxx',
+          val: this.createdTime,
           icon: ''
         }
       ]
+    }
+  },
+  created () {
+    this.getAdminInfo()
+  },
+  methods: {
+    async getAdminInfo () {
+      const userInfo = JSON.parse(sessionStorage.getItem('userInfo'))
+      const { data: res } = await this.$http.get('user/getpersonalinfo?id=' + userInfo.id)
+      // console.log(res)
+      if (res === null) {
+        return this.$message.error('用户信息查询出错！')
+      }
+      this.account = res.data.username
+      this.username = res.data.realname
+      this.createdTime = res.data.createTime
     }
   }
 }

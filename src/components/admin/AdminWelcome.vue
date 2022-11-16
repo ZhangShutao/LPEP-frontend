@@ -1,6 +1,6 @@
 <template>
   <div>
-    欢迎， {{ username }}
+    欢迎， 管理员{{ username }}
   </div>
 </template>
 
@@ -9,7 +9,16 @@ export default {
   name: 'AdminWelcome',
   data () {
     return {
-      username: 'xxx管理员'
+      username: ''
+    }
+  },
+  created () {
+    this.getUserInfo()
+  },
+  methods: {
+    async getUserInfo () {
+      const userInfo = JSON.parse(sessionStorage.getItem('userInfo'))
+      this.username = userInfo.username
     }
   }
 }
