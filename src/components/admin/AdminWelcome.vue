@@ -16,7 +16,7 @@ export default {
     this.getUserInfo()
   },
   methods: {
-    async getUserInfo () {
+    getUserInfo () {
       const userInfo = JSON.parse(sessionStorage.getItem('userInfo'))
       this.username = userInfo.username
     }

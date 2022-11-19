@@ -20,8 +20,9 @@
         </el-form-item>
         <!--按钮区域-->
         <el-form-item class="btns">
-          <el-button type="primary" @click="test">自动生成（测试）</el-button>
-          <el-button type="primary" @click="login">登录</el-button>
+          <el-button type="primary" @click="test1">管理员</el-button>
+          <el-button type="primary" @click="test2">用户</el-button>
+          <el-button type="primary" @click="login" :loading="loading">登录</el-button>
           <el-button type="info" @click="resetLoginForm">重置</el-button>
         </el-form-item>
       </el-form>
@@ -38,21 +39,28 @@ export default {
       loginForm: {
         username: '',
         password: ''
-      }
+      },
+      loading: false
     }
   },
   methods: {
-    test () {
+    test1 () {
       this.loginForm.username = '22000'
       this.loginForm.password = 'admin'
+    },
+    test2 () {
+      this.loginForm.username = '22002'
+      this.loginForm.password = 'lisi'
     },
     // 用户登录
     async login () {
       // 可以在登录之前实现预验证，这里没有进行验证
+      this.loading = true
       const { data: res } = await this.$http.post('user/login', this.loginForm)
+      this.loading = false
       if (res.status !== 200 || res.data === null) return this.$message.error('登录失败！')
       const userInfo = {
-        id: res.data.id,
+        id: res.data.userId,
         isAdmin: res.data.isAdmin === 1,
         username: res.data.realname
       }

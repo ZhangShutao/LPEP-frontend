@@ -159,7 +159,7 @@ export default {
 }
 
 .table-box {
-  /*width: 80%;*/
+  width: 80%;
 }
 
 </style>

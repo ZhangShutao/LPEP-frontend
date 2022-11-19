@@ -10,7 +10,9 @@ import './assets/css/global.css'
 import 'mavon-editor/dist/css/index.css'
 
 import axios from 'axios'
-axios.defaults.baseURL = 'http://10.201.182.166:8080/lpep/'
+import { baseUrl } from './vue.config.js'
+
+axios.defaults.baseURL = baseUrl
 Vue.prototype.$http = axios
 
 Vue.config.productionTip = false

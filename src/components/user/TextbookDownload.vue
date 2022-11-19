@@ -9,14 +9,14 @@
       <!--教材链接栏-->
       <el-table-column label="教材" prop="textbook">
         <template slot-scope="scope">
-          <el-link type="primary" :href="scope.row.textbook">xxx教材(点击下载)</el-link>
+          <el-link type="primary" :href="textbookUrlPrefix + scope.row.id" target="_blank">{{scope.row.title}}</el-link>
         </template>
       </el-table-column>
       <!--上传时间栏-->
-      <el-table-column label="上传时间" prop="uploadTime">
+      <el-table-column label="上传时间" prop="lastUpdateTime">
       </el-table-column>
       <!--实验栏-->
-      <el-table-column label="所属实验" prop="experiment">
+      <el-table-column label="所属实验" prop="experName">
       </el-table-column>
     </el-table>
   </div>
@@ -24,6 +24,7 @@
 
 <script>
 import ContainerHeader from '../common/ContainerHeader'
+import { baseUrl } from '../../vue.config'
 
 export default {
   name: 'TextbookDownload',
@@ -32,19 +33,39 @@ export default {
   },
   data () {
     return {
+      // 查询参数
+      queryInfo: {
+        userId: 0
+      },
       tableData: [
-        {
-          textbook: '教材下载链接',
-          uploadTime: '2023-01-01 14:00',
-          experiment: 'ASP实验'
-        },
-        {
-          textbook: '教材下载链接',
-          uploadTime: '2023-01-01 14:00',
-          experiment: 'LPMLN测试'
-        }
-      ]
+      ],
+      textbookUrlPrefix: baseUrl + 'train/files/'
     }
+  },
+  created () {
+    this.getUserInfo()
+    this.getTextbookList()
+  },
+  methods: {
+    getUserInfo () {
+      const userInfo = JSON.parse(sessionStorage.getItem('userInfo'))
+      this.queryInfo.userId = userInfo.id
+    },
+    async getTextbookList () {
+      console.log(this.queryInfo)
+      const { data: res } = await this.$http.get('user/querypersonaltrainingmaterial', {
+        params: this.queryInfo
+      })
+      this.tableData = res.data
+      console.log(this.tableData)
+    },
+    // 打开指定培训教材
+    async getTextbook (textbookId) {
+      // await this.$http.get('train/files/' + textbookId)
+      // const newsUrl = this.$router.resolve(url);
+      // window.open(newsUrl.href);
+    }
+
   }
 }
 </script>

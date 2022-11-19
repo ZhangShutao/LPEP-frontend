@@ -8,20 +8,16 @@
       stripe
       border
       size="small">
-      <!--表头属性(不含操作栏)-->
-      <el-table-column v-for="(item, index) in tableItems" :key="index"
-                       :prop="item.prop"
-                       :label="item.label"
-                       :width="item.width"
-      >
-      </el-table-column>
-      <!--表头属性(操作栏)-->
+      <el-table-column type="index" width="50"></el-table-column>
+      <el-table-column label="实验名" prop="title" width="200"></el-table-column>
+      <el-table-column label="开始时间" prop="startTime" width="200"></el-table-column>
+      <el-table-column label="状态" prop="state" width="200" :formatter="changeStatus"></el-table-column>
       <el-table-column label="操作" >
         <template slot-scope="scope">
           <el-button
             size="mini"
             type="danger"
-            @click="participateExperiment(scope.$index, scope.row)">开始(参加)实验
+            @click="participateExperiment(scope.$index, scope.row)">参加实验
           </el-button>
         </template>
       </el-table-column>
@@ -50,61 +46,42 @@ export default {
   },
   data () {
     return {
-      tableItems: [
-        {
-          prop: 'id',
-          label: '序号',
-          width: 70
-        },
-        {
-          prop: 'expName',
-          label: '实验名',
-          width: 200
-        },
-        {
-          prop: 'startTime',
-          label: '开始时间',
-          width: 200
-        },
-        {
-          prop: 'Status',
-          label: '状态',
-          width: 200
-        }
-      ],
       // 查询参数
       queryInfo: {
-        userId: 0,
-        pageIndex: 1,
-        pageSize: 10
+        userId: 0
+        // pageIndex: 1,
+        // pageSize: 10
       },
       pageTotal: 100,
       tableData: [
-        {
-          id: '1',
-          expName: 'ASP测试',
-          startTime: '2023-01-01 14:00',
-          Status: '正在进行',
-          Operation: '开始实验'
-        },
-        {
-          id: '2',
-          expName: 'LPMLN测试',
-          startTime: '2023-01-01 14:00',
-          Status: '正在进行',
-          Operation: '开始实验'
-        }
       ]
     }
   },
+  created () {
+    this.getUserInfo()
+    this.getExperimentList()
+  },
   methods: {
+    getUserInfo () {
+      const userInfo = JSON.parse(sessionStorage.getItem('userInfo'))
+      this.queryInfo.userId = userInfo.id
+    },
     async getExperimentList () {
-      // const { data: res } = await this.$http.get('user/experstopart', {
-      //   params: this.queryInfo
-      // })
+      const { data: res } = await this.$http.get('user/experstopart', {
+        params: this.queryInfo
+      })
+      this.tableData = res.data
     },
     handlePageChange (newPage) {
       this.queryInfo.pagenum = newPage
+      this.getExperimentList()
+    },
+    // 状态转换
+    changeStatus (row, column) {
+      const value = row[column.property]
+      if (value === 0) return '异常'
+      else if (value === 1) return '正常'
+      else return '实验中断'
     },
     // 用户参加实验
     participateExperiment (index, experiment) {
@@ -118,6 +95,6 @@ export default {
 <style scoped>
 
 .table-box {
-  width: 100%
+  width: 80%
 }
 </style>

@@ -55,7 +55,7 @@ export default {
   methods: {
     async getAdminInfo () {
       const userInfo = JSON.parse(sessionStorage.getItem('userInfo'))
-      const { data: res } = await this.$http.get('user/getpersonalinfo?id=' + userInfo.id)
+      const { data: res } = await this.$http.get('user/getpersonalinfo?userId=' + userInfo.id)
       // console.log(res)
       if (res === null) {
         return this.$message.error('用户信息查询出错！')
