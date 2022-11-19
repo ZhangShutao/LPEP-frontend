@@ -57,291 +57,42 @@
       </el-pagination>
     </div>
     <!--新建实验1-基本信息-->
-    <el-dialog title="基本信息" :visible.sync="addExperimentDialogVisiable[0]" width="35%">
-      <el-form :model="addExperimentForm" label-width="80px" >
-        <el-form-item label="实验名">
-          <el-input v-model="addExperimentForm.expName"></el-input>
-        </el-form-item>
-        <el-form-item label="开始时间">
-          <el-date-picker
-            v-model="addExperimentForm.startDate"
-            type="date"
-            placeholder="选择日期">
-          </el-date-picker>
-          <el-time-picker
-            v-model="addExperimentForm.startTime"
-            :picker-options="{selectableRange: '00:00:00 - 23:59:59'}"
-            placeholder="任意时间点">
-          </el-time-picker>
-        </el-form-item>
-        <el-form-item label="工作目录">
-          <el-input v-model="addExperimentForm.workDirection"></el-input>
-        </el-form-item>
-      </el-form>
-      <div slot="footer">
-        <el-button type="primary" @click="handleNextDialog(0, 1)">下一步</el-button>
-        <el-button @click="handleNextDialog(0, -1)">取 消</el-button>
-      </div>
-    </el-dialog>
+    <experiment-info-dialog :form="addExperimentForm" :visible="addExperimentDialogVisiable[0]"
+                            @next-dialog="handleNextDialog"></experiment-info-dialog>
     <!--新建实验2-组别管理-->
-    <el-dialog title="组别管理" :visible.sync="addExperimentDialogVisiable[1]" width="35%" >
-      <el-form :model="addExperimentForm" label-width="80px" >
-        <div v-for="(item, index) in addExperimentForm.groups" :key="index">
-          <div style="font-weight: bold">组别{{index+1}}<br/></div>
-          <el-form-item label="组别名">
-            <el-input v-model="item.groupName"></el-input>
-          </el-form-item>
-          <el-form-item label="求解器">
-            <el-select v-model="item.solver">
-              <el-option v-for="(item, index) in allSolverTypes" :key="index" :label="item" :value="item"></el-option>
-            </el-select>
-          </el-form-item>
-        </div>
-      </el-form>
-      <div class="function-box">
-        <el-button type="primary" @click="addGroup" size="small" plain>添加组别</el-button>
-      </div>
-      <div slot="footer">
-        <el-button type="primary" @click="handleNextDialog(1, 0)">上一步</el-button>
-        <el-button type="primary" @click="handleNextDialog(1, 2)">下一步</el-button>
-        <el-button @click="handleNextDialog(1, -1)">取 消</el-button>
-      </div>
-    </el-dialog>
+    <group-dialog  :form="addExperimentForm" :visible="addExperimentDialogVisiable[1]"
+                   :solvers="allSolverTypes"
+                   @add-group="addGroup" @next-dialog="handleNextDialog"></group-dialog>
     <!--新建实验3-实验阶段管理-->
-    <el-dialog title="实验阶段管理" :visible.sync="addExperimentDialogVisiable[2]" width="35%">
-      <el-form :model="addExperimentForm" label-width="80px" >
-        <div v-for="(item, index) in addExperimentForm.phases" :key="index">
-          <div style="font-weight: bold">阶段{{index+1}}<br/></div>
-          <el-form-item label="阶段名">
-            <el-input v-model="item.phaseName"></el-input>
-          </el-form-item>
-          <el-form-item label="阶段类型">
-            <el-select v-model="item.phaseType">
-              <el-option v-for="(item, index) in allPhaseTypes" :key="index" :label="item" :value="item"></el-option>
-            </el-select>
-          </el-form-item>
-        </div>
-      </el-form>
-      <!--添加选项按钮-->
-      <div class="function-box">
-        <el-button type="primary" @click="addPhase" size="small" plain>添加阶段</el-button>
-      </div>
-      <div slot="footer">
-        <el-button type="primary" @click="handleNextDialog(2, 1)">上一步</el-button>
-        <!--下一步需要生成问题管理列表-->
-        <el-button type="primary" @click="handleNextDialog(2, 3)">下一步</el-button>
-        <el-button @click="handleNextDialog(2, -1)">取 消</el-button>
-      </div>
-    </el-dialog>
+    <phase-dialog :form="addExperimentForm" :visible="addExperimentDialogVisiable[2]"
+                  :phases="allPhaseTypes"
+                  @add-phase="addPhase" @next-dialog="handleNextDialog"></phase-dialog>
     <!--新建实验4-问题管理-->
-    <el-dialog title="问题管理" :visible.sync="addExperimentDialogVisiable[3]" width="60%">
-      <el-button @click="generateAddExperimentTableData">生成数据</el-button>
-      <el-table
-        :data="addExperimentTableData"
-        stripe
-        border>
-        <el-table-column label="序号" prop="id"></el-table-column>
-        <el-table-column label="阶段" prop="phase"></el-table-column>
-        <el-table-column label="阶段序号" prop="phaseIndex"></el-table-column>
-        <el-table-column label="类型" prop="phaseType"></el-table-column>
-        <el-table-column label="组别" prop="group"></el-table-column>
-        <el-table-column label="状态" prop="status"></el-table-column>
-        <el-table-column label="操作" align="center">
-          <template slot-scope="scope">
-            <el-button size="mini" type="primary" v-if="scope.row.status !== '已添加'"
-                       @click="handleUpdateQuestion(scope.$index)">添加</el-button>
-            <el-button size="mini" type="primary" v-if="scope.row.status === '已添加'"
-                       @click="handleUpdateQuestion(scope.$index)">修改</el-button>
-          </template>
-        </el-table-column>
-      </el-table>
-      <div slot="footer">
-        <el-button type="primary" @click="handleNextDialog(3, 2)">上一步</el-button>
-        <el-button type="primary" @click="handleNextDialog(3, 6)">下一步</el-button>
-        <el-button @click="handleNextDialog(3, -1)">取 消</el-button>
-      </div>
-    </el-dialog>
-    <!--新建实验5-问题录入(选择题+问答题)-->
-    <el-dialog title="问题录入" :visible.sync="addExperimentDialogVisiable[4]" width="80%" v-if="addExperimentDialogVisiable[4]">
-      <!--每个问题对应一个表单-->
-      <el-form label-width="80px"  :rules="questionNaireRules" :ref="currentQuestionId.toString() + (index + 1) "
-               :model="currentAddedQuestion"
-              v-for="(currentAddedQuestion, index) in currentAddedQuestions" :key="index">
-        <div>问题{{index+1}}
-          <el-button type="danger" @click="handleDeleteQuestion(index)" size="small">删除问题</el-button>
-        </div>
-        <el-form-item label="问题类型" prop="type">
-          <el-radio v-model="currentAddedQuestion.type" label="选择题">选择题</el-radio>
-          <el-radio v-model="currentAddedQuestion.type" label="问答题">问答题</el-radio>
-        </el-form-item>
-        <!--问题描述,采用markdown编辑器-->
-        <el-form-item label="问题描述" prop="content">
-          <mavon-editor v-model="currentAddedQuestion.content" style="min-height: 300px"/>
-        </el-form-item>
-        <!--选择题选项-->
-        <div v-if="currentAddedQuestion.type === '选择题'">
-          <el-form-item :label="'选项' + String.fromCharCode('A'.charCodeAt()+ index)" prop="option"
-                        v-for="(item, index) in currentAddedQuestion.options" :key="index">
-            <el-input v-model="currentAddedQuestion.options[index]" style="width: 400px"></el-input>
-          </el-form-item>
-          <!--添加选项按钮-->
-          <el-button type="primary" @click="addOption(currentAddedQuestion)" size="small" plain>添加选项</el-button>
-        </div>
-        <el-divider></el-divider>
-      </el-form>
-      <div class="function-box">
-        <el-button type="primary" @click="addQuestion()" size="small">添加问题</el-button>
-      </div>
-      <div slot="footer">
-        <el-button type="primary"
-                   @click="handleFinishAddQuestions(); handleNextDialog(4, 3)">确 定</el-button>
-        <el-button @click="handleNextDialog(4, 3)">取 消</el-button>
-      </div>
-    </el-dialog>
-    <!--新建实验6-问题录入（编程题）-->
-    <el-dialog title="问题录入" :visible.sync="addExperimentDialogVisiable[5]" width="80%" v-if="addExperimentDialogVisiable[5]">
-      <!--每个问题对应一个表单-->
-      <el-form label-width="80px" :rules="ProgrammingRules" :ref="currentQuestionId.toString() + (index + 1)"
-               :model="currentAddedQuestion"
-               v-for="(currentAddedQuestion, index) in currentAddedQuestions" :key="index"
-               >
-        <div>问题{{index+1}}
-          <el-button type="danger" @click="handleDeleteQuestion(index)" size="small">删除问题</el-button>
-        </div>
-        <!--问题描述,采用markdown编辑器-->
-        <el-form-item label="问题描述" prop="content">
-          <mavon-editor v-model="currentAddedQuestion.content" style="min-height: 300px"/>
-        </el-form-item>
-        <!--用时上限-->
-        <el-form-item label="用时上限" prop="timeLimit">
-          <el-input v-model="currentAddedQuestion.timeLimit" style="width: 200px"></el-input>分钟
-        </el-form-item>
-        测试数据
-        <div v-for="(item, index) in currentAddedQuestion.testSamples" :key="index" class="input-output-upload">
-          数据{{index+1}}
-          <el-form-item label="输入" prop="inputs">
-            <el-upload
-              action="https://jsonplaceholder.typicode.com/posts/"
-              multiple
-              :limit="3"
-              :on-change="handleUpload"
-              :on-preview="handlePreview"
-              :on-remove="handleRemove"
-              :before-remove="beforeRemove"
-              :on-exceed="handleExceed"
-              :file-list="currentAddedQuestion.testSamples.inputs">
-              <el-button size="small" type="primary">点击上传</el-button>
-            </el-upload>
-          </el-form-item>
-          <el-form-item label="输出" prop="outputs">
-            <el-upload
-              action="https://jsonplaceholder.typicode.com/posts/"
-              multiple
-              :limit="3"
-              :on-change="handleUpload"
-              :on-preview="handlePreview"
-              :on-remove="handleRemove"
-              :before-remove="beforeRemove"
-              :on-exceed="handleExceed"
-              :file-list="currentAddedQuestion.testSamples.outputs">
-              <el-button size="small" type="primary">点击上传</el-button>
-            </el-upload>
-          </el-form-item>
-          <el-form-item label="运行时间上限" label-width="120px" prop="runningTimeLimit">
-            <el-input v-model="currentAddedQuestion.testSamples.runningTimeLimit" style="width: 200px" placeholder="默认为5"></el-input>秒
-          </el-form-item>
-        </div>
-        <!--添加选项按钮-->
-        <div class="function-box">
-          <el-button type="primary" @click="addTestSample(currentAddedQuestion)" size="small" plain>添加数据</el-button>
-        </div>
-        <el-divider></el-divider>
-      </el-form>
-      <div class="function-box">
-        <el-button type="primary" @click="addQuestion()" size="small">添加问题</el-button>
-      </div>
-      <div slot="footer">
-        <el-button type="primary"
-                   @click="handleFinishAddQuestions(); handleNextDialog(5, 3)">确 定</el-button>
-        <el-button @click="handleNextDialog(5, 3)">取 消</el-button>
-      </div>
-    </el-dialog>
+    <question-dialog :addExperimentForm="addExperimentForm" :visible="addExperimentDialogVisiable[3]"
+                     @next-dialog="handleNextDialog"></question-dialog>
     <!--新建实验7-参试人员管理-->
-    <el-dialog title="参试人员管理" :visible.sync="addExperimentDialogVisiable[6]" width="50%">
-      <div class="function-box">
-        <el-button type="info" @click="handleNextDialog(6, 7)">添加用户到实验</el-button>
-        <el-button type="info" @click="handleNextDialog(6, 8)">新增用户</el-button>
-      </div>
-      <el-table
-        class="table-box"
-        :data="participateTableData"
-        stripe
-        border>
-        <el-table-column label="序号" prop="id"></el-table-column>
-        <el-table-column label="学号/工号" prop="studentId"></el-table-column>
-        <el-table-column label="姓名" prop="name"></el-table-column>
-        <el-table-column label="组别" prop="group"></el-table-column>
-        <el-table-column label="操作" align="center">
-          <template slot-scope="scope">
-            <el-button size="mini" type="danger" v-if="scope.row.status !== '已添加'" >删除</el-button>
-          </template>
-        </el-table-column>
-      </el-table>
-      <div slot="footer">
-        <el-button type="primary" @click="handleNextDialog(6, 3)">上一步</el-button>
-        <el-button type="primary" @click="handleCreateExperiment(); handleNextDialog(6, -1)">创建实验</el-button>
-        <el-button @click="addExperimentDialog1Visiable = false">取 消</el-button>
-      </div>
-    </el-dialog>
-    <!--新建实验8-添加用户到实验-->
-    <el-dialog title="实验阶段管理" :visible.sync="addExperimentDialogVisiable[7]" width="30%">
-      <el-form :model="addUserToExperimentForm" label-width="80px" >
-        <el-form-item label="学号/工号">
-          <el-input v-model="addUserToExperimentForm.studentId" @blur="queryAddedUserName"></el-input>
-        </el-form-item>
-        <!--需要根据输入的学号查询姓名-->
-        <el-form-item label="姓名">
-          <el-input v-model="addUserToExperimentForm.name" disabled></el-input>
-        </el-form-item>
-        <el-form-item label="组别">
-          <el-select v-model="addUserToExperimentForm.group">
-            <el-option v-for="(item, index) in addExperimentForm.groups" :key="index" :label="item.groupName" :value="item.groupName"></el-option>
-          </el-select>
-        </el-form-item>
-      </el-form>
-      <div slot="footer">
-        <el-button type="primary" @click="handleAddUserToExperiment(); handleNextDialog(7, 6)">添 加</el-button>
-        <el-button @click="handleNextDialog(7, 6)">取 消</el-button>
-      </div>
-    </el-dialog>
-    <!--新建实验9-新增用户-->
-    <el-dialog title="添加用户" :visible.sync="addExperimentDialogVisiable[8]" width="30%">
-      <el-form :model="userAddForm" label-width="80px" >
-        <el-form-item label="学号/工号">
-          <el-input v-model="userAddForm.studentId"></el-input>
-        </el-form-item>
-        <el-form-item label="姓名">
-          <el-input v-model="userAddForm.name"></el-input>
-        </el-form-item>
-        <el-form-item label="用户类型">
-          <el-radio v-model="userAddForm.type" label="admin">管理员</el-radio>
-          <el-radio v-model="userAddForm.type" label="user">普通用户</el-radio>
-        </el-form-item>
-      </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="handlerAddlParticipate(); handleNextDialog(8, 6)">添 加</el-button>
-        <el-button @click="handleNextDialog(8, 6)">取 消</el-button>
-      </div>
-    </el-dialog>
+    <user-dialog :form="addExperimentForm"
+                 :visible="addExperimentDialogVisiable[4]"
+                 @next-dialog="handleNextDialog"></user-dialog>
   </div>
 </template>
 
 <script>
 import ContainerHeader from '../common/ContainerHeader'
+import ExperimentInfoDialog from './AddExperimentDialog/ExperimentInfoDialog'
+import GroupDialog from './AddExperimentDialog/GroupDialog'
+import PhaseDialog from './AddExperimentDialog/PhaseDialog'
+import QuestionDialog from './AddExperimentDialog/QuestionDialog'
+import UserDialog from './AddExperimentDialog/UserDialog'
 export default {
   name: 'ExperimentTable',
   components: {
-    ContainerHeader
+    ContainerHeader,
+    ExperimentInfoDialog,
+    GroupDialog,
+    PhaseDialog,
+    QuestionDialog,
+    UserDialog
   },
   data () {
     return {
@@ -399,7 +150,7 @@ export default {
       },
       allSolverTypes: [],
       allPhaseTypes: [],
-      // 新增实验表单
+      // 初始新增实验表单
       addExperimentForm: {
         expName: '',
         startDate: '',
@@ -418,53 +169,8 @@ export default {
           }
         ]
       },
-      currentQuestionId: -1,
-      currentAddedQuestions: [
-        {
-          type: '',
-          content: '',
-          options: [
-          ],
-          timeLimit: '',
-          testSamples: [
-            {
-              inputs: [],
-              outputs: [],
-              runningTimeLimit: 0
-            }
-          ]
-        }
-      ],
-      questionNaireRules: {
-        content: [
-          { required: true, message: '请输入问题题干', trigger: 'blur' }
-        ],
-        option: [
-          { required: true, message: '请填写选项内容', trigger: 'blur' }
-        ],
-        type: [
-          { required: true, message: '请至少选择一种问题类型', trigger: 'change' }
-        ]
-      },
-      ProgrammingRules: {
-        content: [
-          { required: true, message: '请输入问题题干', trigger: 'blur' }
-        ],
-        timeLimit: [
-          { required: true, message: '请输入用时上限', trigger: 'blur' }
-        ]
-        // inputs: [
-        //   { required: true, message: '请上传输入文件', trigger: 'change' }
-        // ],
-        // outputs: [
-        //   { required: true, message: '请上传输出文件', trigger: 'change' }
-        // ]
-        // runningTimeLimit: [
-        //   { required: true, message: '请输入运行时间上限', trigger: 'blur' }
-        // ]
-      },
-      // 新增实验数据表
-      addExperimentTableData: [],
+      // // 新增实验数据表
+      // addExperimentTableData: [],
       // 参试人员数据表
       participateTableData: [
         {
@@ -474,24 +180,21 @@ export default {
           group: 'ASP'
         }
       ],
-      addUserToExperimentForm: {
-        studentId: '',
-        name: '',
-        group: ''
-      },
-      userAddForm: {
-        studentId: '',
-        name: '',
-        group: '',
-        type: ''
-      },
+      // addUserToExperimentForm: {
+      //   studentId: '',
+      //   name: '',
+      //   group: ''
+      // },
+      // userAddForm: {
+      //   studentId: '',
+      //   name: '',
+      //   group: '',
+      //   type: ''
+      // },
       fileList: [],
-      // 对话框控制列表
+      // 当前显示对话框
+      visiableDialogIndex: 0,
       addExperimentDialogVisiable: [
-        false,
-        false,
-        false,
-        false,
         false,
         false,
         false,
@@ -501,33 +204,28 @@ export default {
     }
   },
   created () {
-    this.getAllSolverTypes()
-    this.getAllPhaseTypes()
-    this.getAllParticipates()
+    // this.getAllSolverTypes()
+    // this.getAllPhaseTypes()
   },
   methods: {
     handlePageChange () {
       // TODO
     },
     // 控制对话框弹出
-    handleNextDialog (index, nextIndex) {
-      this.$set(this.addExperimentDialogVisiable, index, false)
-      if (nextIndex < this.addExperimentDialogVisiable.length && nextIndex >= 0) {
-        this.$set(this.addExperimentDialogVisiable, nextIndex, true)
+    handleNextDialog (type) {
+      this.$set(this.addExperimentDialogVisiable, this.visiableDialogIndex, false)
+      if (type !== 0) {
+        const nextIndex = this.visiableDialogIndex + type
+        if (nextIndex < this.addExperimentDialogVisiable.length && nextIndex >= 0) {
+          this.$set(this.addExperimentDialogVisiable, nextIndex, true)
+          this.visiableDialogIndex = nextIndex
+        }
       }
     },
     // 开启新增实验处理流程
     addExperiment () {
+      this.visiableDialogIndex = 0
       this.$set(this.addExperimentDialogVisiable, 0, true)
-    },
-    // 获取所有求解器
-    getAllSolverTypes () {
-      // TODO(后端请求)
-      this.allSolverTypes = ['ASP求解器', 'LPLMN求解器']
-    },
-    getAllPhaseTypes () {
-      // TODO(后端请求)
-      this.allPhaseTypes = ['问卷', '编程']
     },
     addGroup () {
       this.addExperimentForm.groups.push(
@@ -545,121 +243,8 @@ export default {
         }
       )
     },
-    // TODO 成新建实验表中的数据(仅限开发使用)
-    generateAddExperimentTableData () {
-      this.addExperimentForm.phases = [
-        {
-          phaseName: '阶段1',
-          phaseType: '问卷'
-        },
-        {
-          phaseName: '阶段2',
-          phaseType: '编程'
-        }
-      ]
-      this.addExperimentForm.groups = [
-        {
-          groupName: '组别1',
-          solver: 'ASP求解器'
-        },
-        {
-          groupName: '组别2',
-          solver: '编程'
-        }
-      ]
-      let count = 1
-      this.addExperimentForm.phases.forEach((phase, index) => {
-        this.addExperimentForm.groups.forEach((group) => {
-          if (phase.phaseName !== '' && group.groupName !== '') {
-            this.addExperimentTableData.push({
-              id: count,
-              phase: phase.phaseName,
-              phaseIndex: index,
-              phaseType: phase.phaseType,
-              group: group.groupName,
-              status: '未添加',
-              // 数据由currentAddedQuestions添加
-              questions: []
-            })
-            count++
-          }
-        })
-      })
-    },
-    // 问题管理-功能操作按钮
-    handleUpdateQuestion (index) {
-      // 关闭当前页面
-      this.$set(this.addExperimentDialogVisiable, 3, false)
-      // 开启新页面
-      this.currentQuestionId = index
-      this.currentAddedQuestions = this.addExperimentTableData[index].questions
-      if (this.addExperimentTableData[index].phaseType === '问卷') {
-        this.$set(this.addExperimentDialogVisiable, 4, true)
-      } else if (this.addExperimentTableData[index].phaseType === '编程') {
-        this.$set(this.addExperimentDialogVisiable, 5, true)
-      }
-      console.log('handleUpdateQuestion')
-      console.log(this.$refs)
-    },
-    handleDeleteQuestion (index) {
-      this.currentAddedQuestions.splice(index, 1)
-    },
-    // 增加问题
-    addQuestion () {
-      this.validateForm(this.currentQuestionId, this.currentAddedQuestions.length, this.addNextQuestion)
-    },
-    addNextQuestion () {
-      this.currentAddedQuestions.push(
-        {
-          type: '',
-          content: '',
-          options: [],
-          timeLimit: '',
-          testSamples: [
-            {
-              inputs: [],
-              outputs: [],
-              runningTimeLimit: 0
-            }
-          ]
-        }
-      )
-    },
-    // 添加选择题选项
-    addOption (question) {
-      question.options.push('')
-    },
-    // 增加编程题测试数据
-    addTestSample (question) {
-      question.testSamples.push({
-        inputs: [],
-        outputs: [],
-        runningTimeLimit: 0
-      })
-    },
-    // 校验表单
-    validateForm (questionId, formIndex, fun) {
-      // 首个问题时不需要校验
-      if (formIndex === 0) {
-        fun()
-      } else {
-        const formName = questionId.toString() + formIndex.toString()
-        this.$refs[formName][0].validate((valid) => {
-          if (valid) {
-            console.log('校验成功')
-            fun()
-          } else {
-            console.log('校验失败')
-            return false
-          }
-        })
-      }
-    },
-    // clearValidateForm (questionId, formIndex) {
-    //   if (formIndex !== 0) {
-    //     const formName = questionId.toString() + formIndex.toString()
-    //     this.$refs[formName][0].clearValidate()
-    //   }
+    // handleUpdateQuestion (index, updatedQuestions) {
+    //   this.$set(this.addExperimentTableData[index], 'questions', updatedQuestions)
     // },
     handleFinishAddQuestions () {
       this.validateForm(this.currentQuestionId, this.currentAddedQuestions.length, () => {
@@ -673,35 +258,8 @@ export default {
         // this.clearValidateForm(this.currentQuestionId, this.currentAddedQuestions.length)
       })
     },
-    // 文件上传
-    handleUpload () {
-      // this.$refs.
-    },
-    // 移除上传文件
-    handleRemove (file, fileList) {
-      console.log(file, fileList)
-    },
-    // 预览上传文件
-    handlePreview (file) {
-      console.log(file)
-    },
-    // 上传文件超过限定数量
-    handleExceed (files, fileList) {
-      this.$message.warning(`当前限制选择 3 个文件，本次选择了 ${files.length} 个文件，共选择了 ${files.length + fileList.length} 个文件`)
-    },
-    beforeRemove (file, fileList) {
-      return this.$confirm(`确定移除 ${file.name}？`)
-    },
     filterStatus (value, row) {
       return row.status === value
-    },
-    // 根据新增学号查询用户姓名并回填表单
-    queryAddedUserName () {
-      this.participateAddForm.name = ''
-      const id = this.participateAddForm.studentId
-      console.log(id)
-      const name = '张三'
-      this.participateAddForm.name = name
     },
     // 触发开始实验按钮
     handleStart (index, row) {
@@ -741,15 +299,6 @@ export default {
       this.addUserToExperimentFormVisible = true
       // TODO
     },
-    // 获取所有参试人员
-    getAllParticipates () {
-      // TODO(后端请求)
-    },
-    // 添加参试人员
-    handlerAddlParticipate () {
-      // TODO后端请求
-
-    },
     // 创建实验
     handleCreateExperiment () {
       // TODO(后端请求)
@@ -762,13 +311,5 @@ export default {
 .table-box {
   margin-top: 10px;
 }
-.function-box {
-  text-align: right;
-}
-.input-output-upload {
-  padding: 10px;
-  display: flex;
-  line-height: 40px;
-  /*justify-content: space-between;*/
-}
+
 </style>

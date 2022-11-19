@@ -17,7 +17,7 @@
           <el-button
             size="mini"
             type="danger"
-            @click="participateExperiment(scope.$index, scope.row)">参加实验
+            @click="participateExperiment(scope.row)">参加实验
           </el-button>
         </template>
       </el-table-column>
@@ -47,6 +47,7 @@ export default {
   data () {
     return {
       // 查询参数
+      userInfo: {},
       queryInfo: {
         userId: 0
         // pageIndex: 1,
@@ -63,8 +64,8 @@ export default {
   },
   methods: {
     getUserInfo () {
-      const userInfo = JSON.parse(sessionStorage.getItem('userInfo'))
-      this.queryInfo.userId = userInfo.id
+      this.userInfo = JSON.parse(sessionStorage.getItem('userInfo'))
+      this.queryInfo.userId = this.userInfo.id
     },
     async getExperimentList () {
       const { data: res } = await this.$http.get('user/experstopart', {
@@ -84,9 +85,24 @@ export default {
       else return '实验中断'
     },
     // 用户参加实验
-    participateExperiment (index, experiment) {
+    async participateExperiment (experiment) {
+      // 获取实验类型
+      const { data: res } = await this.$http.post('exper/getnextphasestatus', {
+        userId: this.queryInfo.userId,
+        experId: experiment.experId,
+        phaseNumber: 1
+      })
+      const isProg = res.data.isProg
+      this.userInfo.phase = 1
+      this.userInfo.experId = experiment.experId
+      this.userInfo.experName = experiment.title
+      sessionStorage.setItem('userInfo', JSON.stringify(this.userInfo))
       // 跳转做题页面
-      this.$router.push('/exam/questionnaire')
+      if (isProg === 0) {
+        this.$router.push('/exam/questionnaire')
+      } else {
+        this.$router.push('/exam/programming')
+      }
     }
   }
 }

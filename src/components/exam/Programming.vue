@@ -138,22 +138,6 @@ export default {
           {
             inputs: 'cat(tom)',
             outputs: ''
-          },
-          {
-            inputs: 'cat(tom)',
-            outputs: ''
-          },
-          {
-            inputs: 'cat(tom)',
-            outputs: ''
-          },
-          {
-            inputs: 'cat(tom)',
-            outputs: ''
-          },
-          {
-            inputs: 'cat(tom)',
-            outputs: ''
           }
         ]
       },
