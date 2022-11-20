@@ -9,7 +9,7 @@
       <!--教材链接栏-->
       <el-table-column label="教材" prop="textbook">
         <template slot-scope="scope">
-          <el-link type="primary" :href="textbookUrlPrefix + scope.row.id" target="_blank">{{scope.row.title}}</el-link>
+          <el-link type="primary" :href="textbookUrlPrefix + scope.row.id" target="_blank">{{scope.row.title}}（点击下载）</el-link>
         </template>
       </el-table-column>
       <!--上传时间栏-->

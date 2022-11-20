@@ -16,13 +16,13 @@
       <el-table-column label="组别" prop="group"></el-table-column>
       <el-table-column label="操作" align="center">
         <template slot-scope="scope">
-          <el-button size="mini" type="danger" v-if="scope.row.status !== '已添加'" >删除</el-button>
+          <el-button size="mini" type="danger" @click="handleDeleteUser(scope.row)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
     <div slot="footer">
       <el-button type="primary" @click="handleNextDialog(-1)">上一步</el-button>
-      <el-button type="primary" @click="handleCreateExperiment(); handleNextDialog(1)">创建实验</el-button>
+      <el-button type="primary" @click="handleNextDialog(1)">完成</el-button>
       <el-button @click="addExperimentDialog1Visiabsle = false">取 消</el-button>
     </div>
     <user-participate-dialog :visible.sync="addUserToExperimentVisible"
@@ -73,6 +73,15 @@ export default {
     // 获取所有参试人员
     getAllParticipates () {
       // TODO(后端请求 participateTableData)
+    },
+    handleDeleteUser (userInfo) {
+      this.$confirm('确定要删除该用户吗？', '提示', {
+        type: 'warning'
+      }).then(() => {
+        // TODO （后端请求）
+        this.$message.success('用户已删除')
+      })
+        .catch(() => {})
     }
   }
 }

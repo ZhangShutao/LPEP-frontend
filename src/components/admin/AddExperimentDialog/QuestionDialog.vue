@@ -169,7 +169,6 @@ export default {
     handleCloseProgrammingDialog () {
       this.programmingVisible = false
     }
-
   }
 }
 </script>

@@ -14,37 +14,36 @@
       class="table-box"
       :data="tableData"
       size="small">
-      <!--教材链接栏-->
       <el-table-column label="教材" prop="textbook">
         <template slot-scope="scope">
-          <el-link type="primary" :href="scope.row.textbook">xxx教材(点击下载)</el-link>
+          <el-link type="primary" :href="textbookUrlPrefix + scope.row.id" target="_blank">{{scope.row.title}}（点击下载）</el-link>
         </template>
       </el-table-column>
-      <!--上传时间栏-->
-      <el-table-column label="上传时间" prop="uploadTime">
+      <el-table-column label="上传时间" prop="lastUpdateTime">
       </el-table-column>
-      <!--实验栏-->
-      <el-table-column label="所属实验" prop="experiment">
+      <el-table-column label="所属实验" prop="experName">
       </el-table-column>
-      <!--实验栏-->
-      <el-table-column label="所属组别" prop="group">
-      </el-table-column>
-      <!--操作栏-->
+      <el-table-column label="所属组别" prop="groupName"></el-table-column>
       <el-table-column label="操作" align="center">
         <template slot-scope="scope">
           <el-button
             size="mini"
-            type="primary"
-            @click="textbookFormDialogTitle = '更新教材'; textbookFormVisible = true; handleUpdate(scope.$index, scope.row)">更新
-          </el-button>
-          <el-button
-            size="mini"
             type="danger"
-            @click="handleDelete(scope.$index, scope.row)">删除
+            @click="handleDelete(scope.row.id)">删除
           </el-button>
         </template>
       </el-table-column>
     </el-table>
+    <div class="pagination">
+      <el-pagination
+        background
+        layout="prev, pager, next"
+        :current-page="query.pageIndex"
+        :page-size="query.pageSize"
+        :total="pageTotal"
+        @current-change="handlePageChange">
+      </el-pagination>
+    </div>
 
     <!--教材信息添加,修改对话框-->
     <el-dialog :title="textbookFormDialogTitle" :visible.sync="textbookFormVisible" width="30%">
@@ -65,7 +64,15 @@
           </el-select>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="textbookFormVisible = false">上传文件</el-button>
+          <el-upload
+            action="https://jsonplaceholder.typicode.com/posts/"
+            :on-remove="handleRemove"
+            :before-remove="beforeRemove"
+            :on-change="handleUpload"
+            :file-list="fileList"
+            :auto-upload="false">
+            <el-button size="small" type="primary">点击上传</el-button>
+          </el-upload>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -78,6 +85,7 @@
 
 <script>
 import ContainerHeader from '../common/ContainerHeader'
+import { baseUrl } from '../../vue.config'
 
 export default {
   name: 'TextbookDownload',
@@ -86,67 +94,67 @@ export default {
   },
   data () {
     return {
+      pageTotal: 100,
+      query: {
+        pageIndex: 1,
+        pageSize: 5
+      },
       textbookFormVisible: false,
       textbookForm: {},
       textbookFormDialogTitle: '',
-      // 所有实验
-      experimentItems: [
-        {
-          elabel: 'ASP实验',
-          evalue: 'asp_experiment'
-        },
-        {
-          elabel: 'LPMLN测试',
-          evalue: 'lpmln_experiment'
-        }
-      ],
-      // 所有组别
-      groupItems: [
-        {
-          glabel: 'ASP组别',
-          gvalue: 'asp_group'
-        },
-        {
-          glabel: 'LPMLN组别',
-          gvalue: 'lpmln_group'
-        }
-      ],
-      tableData: [
-        {
-          textbook: '教材下载链接',
-          uploadTime: '2023-01-01 14:00',
-          experiment: 'ASP实验',
-          group: 'ASP'
-        },
-        {
-          textbook: '教材下载链接',
-          uploadTime: '2023-01-01 14:00',
-          experiment: 'LPMLN测试',
-          group: 'LPMLN'
-        }
-      ]
+      textbookUrlPrefix: baseUrl + 'train/files/',
+      experimentItems: [],
+      groupItems: [],
+      tableData: [],
+      fileList: [{ name: 'food.jpeg', url: 'https://fuss10.elemecdn.com/3/63/4e7f3a15429bfda99bce42a18cdd1jpeg.jpeg?imageMogr2/thumbnail/360x360/format/webp/quality/100' }]
     }
   },
+  created () {
+    this.getTextbookList()
+  },
   methods: {
+    async getTextbookList () {
+      const { data: res } = await this.$http.get('admin/listalltrainingmaterial', {
+        params: this.query
+      })
+      this.pageTotal = res.data.recordCount
+      this.tableData = res.data.queryTrainingMaterialInfoList
+    },
+    handlePageChange (newPage) {
+      this.query.pageIndex = newPage
+      this.getTextbookList()
+    },
     // 触发新增教材按钮
     addTextbook () {
       // TODO
     },
-    // 触发更新教材按钮
-    handleUpdate (index, row) {
-      // TODO 教材信息更新
+    // 文件上传
+    handleUpload () {
+      console.log(this.fileList)
+    },
+    // 移除上传文件
+    handleRemove (file, fileList) {
+      console.log(file, fileList)
+    },
+    beforeRemove (file, fileList) {
+      return this.$confirm(`确定移除 ${file.name}？`)
     },
     // 触发删除教材按钮
-    handleDelete (index, row) {
-      // 二次确认
-      this.$confirm('确定要分析吗？', '提示', {
+    handleDelete (textbookId) {
+      this.$confirm('确定要删除吗？', '提示', {
         type: 'warning'
-      }).then(() => {
-        this.$message.success('分析成功')
-        // TODO 分析流程
-      })
-        .catch(() => {
+      }).then(async () => {
+        const { data: res } = await this.$http.get('admin/deletetrainingmaterial', {
+          params: { id: textbookId }
         })
+        if (res.status === 204) {
+          this.$message.success('教材已删除')
+        } else {
+          this.$message.error(res.msg)
+        }
+      }).finally(() => {
+        this.getTextbookList()
+      })
     }
   }
 }
@@ -159,7 +167,7 @@ export default {
 }
 
 .table-box {
-  width: 80%;
+  /*width: 80%;*/
 }
 
 </style>

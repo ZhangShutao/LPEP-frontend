@@ -83,8 +83,10 @@ export default {
 
 <style lang="less" scoped>
 .login_container {
-  background-color: #2b4b6b;
+  background: url('../assets/bg1.jpg') no-repeat;
+  background-size: 100% 100%;
   height: 100%;
+
 }
 
 .login_box {

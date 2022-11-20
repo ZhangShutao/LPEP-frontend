@@ -9,38 +9,34 @@
       :data="experimentTableData"
       stripe
       border>
-      <!--表头属性(不含状态栏,操作栏)-->
-      <el-table-column v-for="(item, index) in experimentTableItems" :key="index"
-                       :prop="item.prop"
-                       :label="item.label"
-                       :width="item.width"
-      >
-      </el-table-column>
-      <!--表头属性(状态栏)-->
-      <el-table-column label="状态" prop="status"
-                       :filters="[{ text: '未开始', value: '未开始' }, { text: '进行中', value: '进行中' }, { text: '已结束', value: '已结束' }]"
+      <el-table-column type="index" width="70"></el-table-column>
+      <el-table-column label="实验名" prop="title" width="200"></el-table-column>
+      <el-table-column label="开始时间" prop="startTime" width="200"></el-table-column>
+      <el-table-column label="状态" prop="state"
+                       :formatter="changeStatus"
+                       :filters="[{ text: '未开始', value:  0}, { text: '已结束', value: 1 }, { text: '进行中', value: 2 }]"
                        :filter-method="filterStatus">
       </el-table-column>
       <!--表头属性(操作栏)-->
-      <el-table-column label="操作" >
+      <el-table-column label="操作" align="center">
         <template slot-scope="scope">
           <el-button
             size="mini"
             type="primary"
-            @click="handleStart(scope.$index, scope.row)"
-            :disabled="scope.row.status !== '未开始'">开始
+            @click="handleStart(scope.row.experId)"
+            :disabled="scope.row.state !== 0">开始
           </el-button>
           <el-button
             size="mini"
             type="danger"
-            @click="handleCancel(scope.$index, scope.row)"
-            :disabled="scope.row.status !== '进行中'">取消
+            @click="handleCancel(scope.row.experId)"
+            :disabled="scope.row.state !== 2">结束
           </el-button>
           <el-button
             size="mini"
             type="success"
-            @click="handleAnalysis(scope.$index, scope.row)"
-            :disabled="scope.row.status !== '已结束'">分析
+            @click="handleAnalysis(scope.row.experId)"
+            :disabled="scope.row.state !== 1">分析
           </el-button>
         </template>
       </el-table-column>
@@ -61,11 +57,10 @@
                             @next-dialog="handleNextDialog"></experiment-info-dialog>
     <!--新建实验2-组别管理-->
     <group-dialog  :form="addExperimentForm" :visible="addExperimentDialogVisiable[1]"
-                   :solvers="allSolverTypes"
                    @add-group="addGroup" @next-dialog="handleNextDialog"></group-dialog>
     <!--新建实验3-实验阶段管理-->
     <phase-dialog :form="addExperimentForm" :visible="addExperimentDialogVisiable[2]"
-                  :phases="allPhaseTypes"
+                  @create-experiment="handleCreateExperiment"
                   @add-phase="addPhase" @next-dialog="handleNextDialog"></phase-dialog>
     <!--新建实验4-问题管理-->
     <question-dialog :addExperimentForm="addExperimentForm" :visible="addExperimentDialogVisiable[3]"
@@ -96,60 +91,12 @@ export default {
   },
   data () {
     return {
-      experimentTableItems: [
-        {
-          prop: 'id',
-          label: '序号',
-          width: 70
-        },
-        {
-          prop: 'expName',
-          label: '实验名',
-          width: 200
-        },
-        {
-          prop: 'startTime',
-          label: '开始时间',
-          width: 200
-        }
-      ],
-      experimentTableData: [
-        {
-          id: '1',
-          expName: 'ASP测试',
-          startTime: '2023-01-01 14:00',
-          status: '进行中',
-          operation: '开始实验'
-        },
-        {
-          id: '2',
-          expName: 'LPMLN测试',
-          startTime: '2023-01-01 14:00',
-          status: '进行中',
-          operation: '开始实验'
-        },
-        {
-          id: '3',
-          expName: 'LPMLN测试',
-          startTime: '2023-01-01 14:00',
-          status: '未开始',
-          operation: '开始实验'
-        },
-        {
-          id: '2',
-          expName: 'LPMLN测试',
-          startTime: '2023-01-01 14:00',
-          status: '已结束',
-          operation: '开始实验'
-        }
-      ],
+      experimentTableData: [],
       pageTotal: 100,
       query: {
         pageIndex: 1,
-        pageSize: 10
+        pageSize: 3
       },
-      allSolverTypes: [],
-      allPhaseTypes: [],
       // 初始新增实验表单
       addExperimentForm: {
         expName: '',
@@ -169,28 +116,6 @@ export default {
           }
         ]
       },
-      // // 新增实验数据表
-      // addExperimentTableData: [],
-      // 参试人员数据表
-      participateTableData: [
-        {
-          id: 1,
-          studentId: '11xxxx',
-          name: '张三',
-          group: 'ASP'
-        }
-      ],
-      // addUserToExperimentForm: {
-      //   studentId: '',
-      //   name: '',
-      //   group: ''
-      // },
-      // userAddForm: {
-      //   studentId: '',
-      //   name: '',
-      //   group: '',
-      //   type: ''
-      // },
       fileList: [],
       // 当前显示对话框
       visiableDialogIndex: 0,
@@ -204,12 +129,80 @@ export default {
     }
   },
   created () {
-    // this.getAllSolverTypes()
-    // this.getAllPhaseTypes()
+    this.getExperimentList()
   },
   methods: {
-    handlePageChange () {
-      // TODO
+    async getExperimentList () {
+      const { data: res } = await this.$http.get('admin/listallexper', {
+        params: this.query
+      })
+      this.pageTotal = res.data.recordCount
+      this.experimentTableData = res.data.experInfoList
+    },
+    handlePageChange (newPage) {
+      this.query.pageIndex = newPage
+      this.getExperimentList()
+    },
+    // 状态转换
+    changeStatus (row, column) {
+      const value = row[column.property]
+      if (value === 0) return '未开始'
+      else if (value === 1) return '已结束'
+      else return '进行中'
+    },
+    filterStatus (value, row) {
+      return row.state === value
+    },
+    // 触发开始实验按钮
+    handleStart (experId) {
+      this.$confirm('确定要开始实验吗？', '提示', {
+        type: 'warning'
+      }).then(async () => {
+        const { data: res } = await this.$http.get('admin/startexper', {
+          params: { experId: experId }
+        })
+        if (res.data === 1) {
+          this.$message.success('实验已开启')
+        } else {
+          this.$message.error('实验开启失败')
+        }
+      }).finally(() => {
+        this.getExperimentList()
+      })
+    },
+    // 触发取消实验按钮
+    handleCancel (experId) {
+      this.$confirm('确定要结束实验吗？', '提示', {
+        type: 'warning'
+      }).then(async () => {
+        const { data: res } = await this.$http.get('admin/endexper', {
+          params: { experId: experId }
+        })
+        if (res.data === 1) {
+          this.$message.success('实验已结束')
+        } else {
+          this.$message.error('实验结束失败')
+        }
+      }).finally(() => {
+        this.getExperimentList()
+      })
+    },
+    // 触发分析实验按钮
+    handleAnalysis (experId) {
+      // this.$confirm('确定要分析实验吗？', '提示', {
+      //   type: 'warning'
+      // }).then(async () => {
+      //   const { data: res } = await this.$http.get('admin/endexper', {
+      //     params: { experId: experId }
+      //   })
+      //   if (res.data === 1) {
+      //     this.$message.success('实验分析成功')
+      //   } else {
+      //     this.$message.error('实验分析失败')
+      //   }
+      // }).finally(() => {
+      //   this.getExperimentList()
+      // })
     },
     // 控制对话框弹出
     handleNextDialog (type) {
@@ -242,62 +235,6 @@ export default {
           phaseType: ''
         }
       )
-    },
-    // handleUpdateQuestion (index, updatedQuestions) {
-    //   this.$set(this.addExperimentTableData[index], 'questions', updatedQuestions)
-    // },
-    handleFinishAddQuestions () {
-      this.validateForm(this.currentQuestionId, this.currentAddedQuestions.length, () => {
-        const id = this.currentQuestionId
-        if (id !== -1) {
-          this.$set(this.addExperimentTableData[id], 'questions', this.currentAddedQuestions)
-          if (this.currentAddedQuestions.length > 0) {
-            this.addExperimentTableData[id].status = '已添加'
-          }
-        }
-        // this.clearValidateForm(this.currentQuestionId, this.currentAddedQuestions.length)
-      })
-    },
-    filterStatus (value, row) {
-      return row.status === value
-    },
-    // 触发开始实验按钮
-    handleStart (index, row) {
-      // 二次确认
-      this.$confirm('确定要开始吗？', '提示', {
-        type: 'warning'
-      }).then(() => {
-        this.$message.success('实验已开启')
-        // TODO 开始流程
-      })
-        .catch(() => {})
-    },
-    // 触发取消实验按钮
-    handleCancel (index, row) {
-      // 二次确认
-      this.$confirm('确定要取消吗？', '提示', {
-        type: 'warning'
-      }).then(() => {
-        this.$message.success('实验已取消')
-        // TODO 取消流程
-      })
-        .catch(() => {})
-    },
-    // 触发分析实验按钮
-    handleAnalysis (index, row) {
-      // 二次确认
-      this.$confirm('确定要分析吗？', '提示', {
-        type: 'warning'
-      }).then(() => {
-        this.$message.success('分析成功')
-        // TODO 分析流程
-      })
-        .catch(() => {})
-    },
-    // 触发添加到实验按钮
-    handleAddUserToExperiment (index, row) {
-      this.addUserToExperimentFormVisible = true
-      // TODO
     },
     // 创建实验
     handleCreateExperiment () {

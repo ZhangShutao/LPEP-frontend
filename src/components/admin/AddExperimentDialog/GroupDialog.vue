@@ -49,9 +49,9 @@ export default {
       this.$emit('next-dialog', type)
     },
     // 获取所有求解器
-    getAllSolverTypes () {
-      // TODO(后端请求)
-      this.allSolverTypes = ['ASP求解器', 'LPLMN求解器']
+    async getAllSolverTypes () {
+      const { data: res } = await this.$http.get('exper/listallrunner')
+      this.allSolverTypes = res.data
     },
     addGroup () {
       this.$emit('add-group')

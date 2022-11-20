@@ -13,30 +13,22 @@
       :data="participantsTableData"
       stripe
       border>
-      <!--表头属性(不含状态栏,操作栏)-->
-      <el-table-column v-for="(item, index) in participantsTableItems" :key="index"
-                       :prop="item.prop"
-                       :label="item.label"
-                       :width="item.width"
-      >
-      </el-table-column>
-      <!--表头属性(操作栏)-->
+      <el-table-column type="index" width="70"></el-table-column>
+      <el-table-column label="姓名" prop="realname" width="100"></el-table-column>
+      <el-table-column label="学号" prop="username" width="100"></el-table-column>
+      <!--<el-table-column label="管理员" prop="isAdmin" width="100" :formatter="changeStatus"></el-table-column>-->
+      <el-table-column label="添加时间" prop="createTime" width="200"></el-table-column>
       <el-table-column label="操作" align="center">
         <template slot-scope="scope">
           <el-button
             size="mini"
             type="primary"
-            @click="handleDelete(scope.$index, scope.row)">删除
-          </el-button>
-          <el-button
-            size="mini"
-            type="danger"
-            @click="handleModify(scope.$index, scope.row)">修改
+            @click="handleDelete(scope.row.userId)">删除
           </el-button>
           <el-button
             size="mini"
             type="success"
-            @click="handleAddUserToExperiment(scope.$index, scope.row)">添加到实验
+            @click="handleAddUserToExperiment(scope.row.userId)">添加到实验
           </el-button>
         </template>
       </el-table-column>
@@ -54,24 +46,9 @@
     </div>
 
     <!--用户添加对话框-->
-    <el-dialog title="添加用户" :visible.sync="userAddFormVisible" width="30%">
-      <el-form :model="userAddForm" label-width="80px" >
-        <el-form-item label="学号/工号">
-          <el-input v-model="userAddForm.studentId"></el-input>
-        </el-form-item>
-        <el-form-item label="姓名">
-          <el-input v-model="userAddForm.name"></el-input>
-        </el-form-item>
-        <el-form-item label="用户类型">
-          <el-radio v-model="userAddForm.type" label="admin">管理员</el-radio>
-          <el-radio v-model="userAddForm.type" label="user">普通用户</el-radio>
-        </el-form-item>
-      </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="userAddFormVisible = false">添 加</el-button>
-        <el-button @click="userAddFormVisible = false">取 消</el-button>
-      </div>
-    </el-dialog>
+    <user-add-dialog :visible.sync="userAddFormVisible"
+                     @finish-add-participate="getAllParticipates"
+                     @close-dialog="userAddFormVisible = false"></user-add-dialog>
 
     <!--添加用户到实验对话框-->
     <el-dialog title="添加用户到实验" :visible.sync="addUserToExperimentFormVisible" width="70%">
@@ -79,8 +56,7 @@
       <el-table
         :data="experimentTableData"
         stripe
-        border
-        @selection-change="handleSelectionChange">
+        border>
         <el-table-column type="selection"></el-table-column>
         <el-table-column label="序号" prop="id"></el-table-column>
         <el-table-column label="实验名" prop="expName"></el-table-column>
@@ -105,16 +81,17 @@
 
 <script>
 import ContainerHeader from '../common/ContainerHeader'
+import UserAddDialog from './AddExperimentDialog/UserAddDialog'
 export default {
   name: 'ParticipantsTable',
   components: {
-    ContainerHeader
-  },
-  created () {
-    this.getAllParticipates()
+    ContainerHeader,
+    UserAddDialog
   },
   data () {
     return {
+      // 参试人员列表数据
+      participantsTableData: [],
       userAddFormVisible: false,
       userAddForm: {
         studentId: '',
@@ -124,174 +101,68 @@ export default {
       addUserToExperimentFormVisible: false,
       addUserToExperimentForm: {
       },
-      // 参试人员列表项
-      participantsTableItems: [
-        {
-          prop: 'id',
-          label: '序号',
-          width: 70
-        },
-        {
-          prop: 'name',
-          label: '姓名',
-          width: 100
-        },
-        {
-          prop: 'studentId',
-          label: '学号',
-          width: 100
-        },
-        {
-          prop: 'participatedExperiment',
-          label: '参与实验',
-          width: 200
-        },
-        {
-          prop: 'participatedGroup',
-          label: '所属组别',
-          width: 150
-        },
-        {
-          prop: 'createdTime',
-          label: '添加时间',
-          width: 200
-        }
-      ],
-      // 参试人员列表数据
-      participantsTableData: [
-        {
-          id: '1',
-          name: '张三',
-          studentId: 'xxx',
-          participatedExperiment: 'ASP测试',
-          participatedGroup: 'ASP',
-          createdTime: '2023-01-01 14:00'
-        },
-        {
-          id: '2',
-          name: '李四',
-          studentId: 'xxx',
-          participatedExperiment: 'ASP测试',
-          participatedGroup: 'ASP',
-          createdTime: '2023-01-01 14:00'
-        },
-        {
-          id: '1',
-          name: '张三',
-          studentId: 'xxx',
-          participatedExperiment: 'LPMLN测试',
-          participatedGroup: 'LPMLN',
-          createdTime: '2023-01-01 14:00'
-        },
-        {
-          id: '1',
-          name: '张三',
-          studentId: 'xxx',
-          participatedExperiment: 'LPMLN测试',
-          participatedGroup: 'LPMLN',
-          createdTime: '2023-01-01 14:00'
-        }
-      ],
-      // 未开始实验列表数据
-      experimentTableData: [
-        {
-          id: '1',
-          expName: 'ASP测试',
-          startTime: '2023-01-01 14:00',
-          status: '未开始',
-          // 可选组别选项
-          groupList: [
-            {
-              label: '实验组1',
-              value: 'group_1'
-            },
-            {
-              label: '对照组1',
-              value: 'group_2'
-            },
-            {
-              label: '实验组2',
-              value: 'group_3'
-            }
-          ],
-          // 选中添加的组
-          groupToParticipate: ''
-        },
-        {
-          id: '2',
-          expName: 'LPMLN测试',
-          startTime: '2023-01-01 14:00',
-          status: '未开始',
-          groupList: [
-            {
-              label: '实验组1',
-              value: 'group_1'
-            },
-            {
-              label: '对照组1',
-              value: 'group_2'
-            },
-            {
-              label: '实验组2',
-              value: 'group_3'
-            }
-          ],
-          // 选中添加的组
-          groupToParticipate: ''
-        }
-      ],
       multipleSelection: [],
       pageTotal: 100,
       query: {
         pageIndex: 1,
-        pageSize: 10
+        pageSize: 5
       }
     }
   },
+  created () {
+    this.getAllParticipates()
+  },
   methods: {
-    // 新增实验
-    addExperiment () {
-
-    },
-    filterStatus (value, row) {
-      return row.status === value
-    },
-    // 触发开始实验按钮
-    handleDelete (index, row) {
-      // 二次确认
-      this.$confirm('确定要开始吗？', '提示', {
-        type: 'warning'
-      }).then(() => {
-        this.$message.success('实验已开启')
-        // TODO 开始流程
+    // 获取所有参试人员
+    async getAllParticipates () {
+      const { data: res } = await this.$http.get('admin/listalltester', {
+        params: this.query
       })
-        .catch(() => {})
+      this.pageTotal = res.data.recordCount
+      this.participantsTableData = res.data.testerInfoList
+    },
+    handlePageChange (newPage) {
+      this.query.pageIndex = newPage
+      this.getAllParticipates()
+    },
+    changeStatus (row, column) {
+      const value = row[column.property]
+      if (value === 0) {
+        return '否'
+      } else {
+        return '是'
+      }
+    },
+    // 用户删除
+    handleDelete (userId) {
+      this.$confirm('确定要删除该用户吗？', '提示', {
+        type: 'warning'
+      }).then(async () => {
+        const { data: res } = await this.$http.get('admin/deletetester', {
+          params: { userId: userId }
+        })
+        if (res.status === 204) {
+          this.$message.success('用户已删除')
+        } else {
+          this.$message.error(res.msg)
+        }
+      }).finally(() => {
+        this.getAllParticipates()
+      })
     },
     // 触发添加到实验按钮
     handleAddUserToExperiment (index, row) {
       this.addUserToExperimentFormVisible = true
       // TODO
-    },
-    // 触发修改参试人员信息按钮
-    handleModify (index, row) {
-      // TODO
-    },
-    handleSelectionChange (val) {
-      this.multipleSelection = val
-    },
-    // 获取所有参试人员
-    getAllParticipates () {
-      // TODO(后端请求)
-    },
-    // 添加参试人员
-    handlerAddlParticipate () {
-      // TODO后端请求
     }
   }
 }
 </script>
 
 <style scoped>
+.table-box {
+  /*width: 80%*/
+}
 .function-box {
   margin-bottom: 10px;
   text-align: right;

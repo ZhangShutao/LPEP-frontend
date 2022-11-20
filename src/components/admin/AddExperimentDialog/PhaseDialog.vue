@@ -21,7 +21,7 @@
     <div slot="footer">
       <el-button type="primary" @click="handleNextDialog(-1)">上一步</el-button>
       <!--下一步需要生成问题管理列表-->
-      <el-button type="primary" @click="handleNextDialog(1)">下一步</el-button>
+      <el-button type="primary" @click="handleCreateExperiment(); handleNextDialog(1)">创建实验</el-button>
       <el-button @click="handleNextDialog(0)">取 消</el-button>
     </div>
   </el-dialog>
@@ -32,7 +32,7 @@ export default {
   name: 'PhaseDialog',
   data () {
     return {
-      allPhaseTypes: []
+      allPhaseTypes: ['问卷', '编程']
     }
   },
   props: {
@@ -43,19 +43,15 @@ export default {
       type: Boolean
     }
   },
-  created () {
-    this.getAllPhaseTypes()
-  },
   methods: {
     handleNextDialog (type) {
       this.$emit('next-dialog', type)
     },
-    getAllPhaseTypes () {
-      // TODO(后端请求)
-      this.allPhaseTypes = ['问卷', '编程']
-    },
     addPhase () {
       this.$emit('add-phase')
+    },
+    handleCreateExperiment () {
+      this.$emit('create-experiment')
     }
   }
 }
