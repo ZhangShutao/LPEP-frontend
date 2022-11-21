@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <container-header title="实验列表"></container-header>
-    <el-button type="info"  style="float: right" @click="addExperiment">新增实验</el-button>
+    <el-button type="warning"  style="float: right" @click="addExperiment">新增实验</el-button>
     <div style="clear:both"></div>
     <!--实验列表-->
     <el-table
@@ -99,22 +99,24 @@ export default {
       },
       // 初始新增实验表单
       addExperimentForm: {
-        expName: '',
+        creatorId: '',
+        experName: '',
         startDate: '',
         startTime: '',
-        workDirection: '',
-        groups: [
+        workspace: '',
+        groupInfoList: [
           {
-            groupName: '',
-            solver: ''
+            groupName: ''
           }
         ],
-        phases: [
+        phaseInfoList: [
           {
+            number: 1,
             phaseName: '',
             phaseType: ''
           }
         ]
+
       },
       fileList: [],
       // 当前显示对话框
@@ -129,9 +131,14 @@ export default {
     }
   },
   created () {
+    this.getAdminInfo()
     this.getExperimentList()
   },
   methods: {
+    getAdminInfo () {
+      const userInfo = JSON.parse(sessionStorage.getItem('userInfo'))
+      this.addExperimentForm.creatorId = userInfo.id
+    },
     async getExperimentList () {
       const { data: res } = await this.$http.get('admin/listallexper', {
         params: this.query
@@ -189,20 +196,6 @@ export default {
     },
     // 触发分析实验按钮
     handleAnalysis (experId) {
-      // this.$confirm('确定要分析实验吗？', '提示', {
-      //   type: 'warning'
-      // }).then(async () => {
-      //   const { data: res } = await this.$http.get('admin/endexper', {
-      //     params: { experId: experId }
-      //   })
-      //   if (res.data === 1) {
-      //     this.$message.success('实验分析成功')
-      //   } else {
-      //     this.$message.error('实验分析失败')
-      //   }
-      // }).finally(() => {
-      //   this.getExperimentList()
-      // })
     },
     // 控制对话框弹出
     handleNextDialog (type) {
@@ -221,24 +214,28 @@ export default {
       this.$set(this.addExperimentDialogVisiable, 0, true)
     },
     addGroup () {
-      this.addExperimentForm.groups.push(
+      this.addExperimentForm.groupInfoList.push(
         {
-          groupName: '',
-          solver: ''
+          groupName: ''
         }
       )
     },
     addPhase () {
-      this.addExperimentForm.phases.push(
+      this.addExperimentForm.phaseInfoList.push(
         {
+          number: this.addExperimentForm.phaseInfoList.length + 1,
           phaseName: '',
           phaseType: ''
         }
       )
     },
     // 创建实验
-    handleCreateExperiment () {
-      // TODO(后端请求)
+    async handleCreateExperiment () {
+      const { data: res } = await this.$http.post('admin/createexper', this.addExperimentForm)
+      if (res.status !== 201) {
+        return this.$message.error('实验创建失败')
+      }
+      this.$message.success('实验创建成功')
     }
   }
 }

@@ -3,7 +3,7 @@
   <div class="container">
     <container-header :title="experName" :sub-title="'阶段' + phaseName"></container-header>
     <!--表单绑定做题结果-->
-    <el-form :model="form" label-width="80px" label-position="top">
+    <el-form :model="questionnaireForm" label-width="80px" label-position="top" ref="questionnaireFormRef">
       <div v-for="(question, index) in questionList" :key="index">
         <!--选择题-->
         <el-form-item :label="index + 1 + '. ' + question.content" v-if="question.type === 1">
@@ -32,18 +32,18 @@
 <script>
 import ContainerHeader from '../common/ContainerHeader'
 export default {
-  name: 'Questionaire',
+  name: 'Questionnaire',
   components: {
     ContainerHeader
   },
   data () {
     return {
       userInfo: {},
-      form: {},
+      questionnaireForm: {},
       // 程序阅读题目列表
       questionList: [],
       experName: '',
-      phaseName: ''
+      phaseName: 0
     }
   },
   created () {
@@ -55,28 +55,45 @@ export default {
     getExperimentInfo () {
       this.userInfo = JSON.parse(sessionStorage.getItem('userInfo'))
       this.experName = this.userInfo.experName
-      this.phaseName = this.userInfo.phase
+      this.phaseName = this.userInfo.phaseNumber
     },
     // 获取问题列表
     async getQuestionList () {
       const { data: res } = await this.$http.post('exper/getnonprogquestion', {
         userId: this.userInfo.id,
         experId: this.userInfo.experId,
-        phaseNumber: this.userInfo.phase
+        phaseNumber: this.userInfo.phaseNumber
       })
       this.questionList = res.data
-      console.log(this.questionList)
     },
-    // 提交做题结果
-    onSubmit () {
+    // 提交答案
+    async handleSubmit () {
       // this.questionList.forEach((question, index) => {
       //   console.log(index + ' ' + question.choice)
       // })
-      this.$router.push('/exam/programming')
+      // TODO 后端请求
+      this.$refs.questionnaireFormRef.resetFields()
     },
-    // 到下个阶段
-    gotoNextPhase () {
-
+    async gotoNextPhase () {
+      // 更新阶段
+      this.userInfo.phaseNumber = this.userInfo.phaseNumber + 1
+      this.userInfo.questionNumber = 1
+      sessionStorage.setItem('userInfo', JSON.stringify(this.userInfo))
+      // 获取下一阶段实验类型
+      const { data: res } = await this.$http.post('exper/getnextphasestatus', {
+        userId: this.userInfo.userId,
+        experId: this.userInfo.experId,
+        phaseNumber: this.userInfo.phase
+      })
+      if (res.data.isEnd === 1) {
+        return this.$router.push('/exam/exam-end')
+      }
+      if (res.data.isProg === 0) {
+        this.getQuestionList()
+        console('获取下个题目')
+      } else {
+        this.$router.push('/exam/programming')
+      }
     }
   }
 }

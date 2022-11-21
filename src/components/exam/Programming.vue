@@ -119,6 +119,10 @@ export default {
   },
   data () {
     return {
+      userInfo: {},
+      experName: '',
+      phaseName: 0,
+      questionNumber: 0,
       question: {
         questionDescription: '如果一个对象是企鹅，那它是一只鸟。',
         namingConventions: [
@@ -158,7 +162,29 @@ export default {
       firstWrongPracticalOutput: '123'
     }
   },
+  created () {
+    this.getExperimentInfo()
+    this.getNextQuestion()
+  },
   methods: {
+    // 获取实验信息
+    getExperimentInfo () {
+      this.userInfo = JSON.parse(sessionStorage.getItem('userInfo'))
+      this.experName = this.userInfo.experName
+      this.phaseName = this.userInfo.phaseNumber
+      this.questionNumber = this.userInfo.questionNumber
+    },
+    // 获取问题列表
+    async getNextQuestion () {
+      const { data: res } = await this.$http.post('exper/getprogquestion', {
+        userId: this.userInfo.id,
+        experId: this.userInfo.experId,
+        phaseNumber: this.userInfo.phaseNumber,
+        questionNumber: this.userInfo.questionNumber
+      })
+      this.question = res.data
+      console.log(this.question)
+    },
     handleSubmit () {
       // 清空提交结果;反馈测试中;禁用提交按钮
       this.executeResult = ''
@@ -171,6 +197,27 @@ export default {
         this.loading = false
         this.submitDisabled = false
       }, 2000)
+      // TODO
+    },
+    async gotoNextPhase () {
+      // 更新下一个阶段
+      this.userInfo.phaseNumber = this.userInfo.phaseNumber + 1
+      this.userInfo.questionNumber = this.userInfo.questionNumber + 1
+      sessionStorage.setItem('userInfo', JSON.stringify(this.userInfo))
+      // 获取下一阶段实验类型
+      const { data: res } = await this.$http.post('exper/getnextphasestatus', {
+        userId: this.userInfo.userId,
+        experId: this.userInfo.experId,
+        phaseNumber: this.userInfo.phase
+      })
+      if (res.data.isEnd === 1) {
+        return this.$router.push('/exam/exam-end')
+      }
+      if (res.data.isProg === 0) {
+        this.$router.push('/exam/questionnaire')
+      } else {
+        this.$router.push('/exam/programming')
+      }
     },
     // 计时结束无法对编程区域修改
     handleCountEnd () {

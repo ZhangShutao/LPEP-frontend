@@ -2,14 +2,14 @@
   <!--新建实验3-实验阶段管理-->
   <el-dialog title="实验阶段管理" :visible.sync="visible" width="35%">
     <el-form :model="form" label-width="80px" >
-      <div v-for="(item, index) in form.phases" :key="index">
+      <div v-for="(item, index) in form.phaseInfoList" :key="index">
         <div style="font-weight: bold">阶段{{index+1}}<br/></div>
         <el-form-item label="阶段名">
           <el-input v-model="item.phaseName"></el-input>
         </el-form-item>
         <el-form-item label="阶段类型">
           <el-select v-model="item.phaseType">
-            <el-option v-for="(phase, index) in allPhaseTypes" :key="index" :label="phase" :value="phase"></el-option>
+            <el-option v-for="(phase, index) in allPhaseTypes" :key="index" :label="phase" :value="index"></el-option>
           </el-select>
         </el-form-item>
       </div>
@@ -37,7 +37,7 @@ export default {
   },
   props: {
     form: {
-      phases: []
+      phaseInfoList: []
     },
     visible: {
       type: Boolean

@@ -10,12 +10,13 @@ import AdminHome from '../components/admin/AdminHome'
 import AdminWelcome from '../components/admin/AdminWelcome'
 import AdminInfo from '../components/admin/AdminInfo'
 import ExperimentTable from '../components/admin/ExperimentTable'
-import ParticipantsTable from '../components/admin/ParticipantsTable'
-import TextbookManagement from '../components/admin/TextbookManagement'
-import Questionaire from '../components/exam/Questionaire'
+import ParticipantsTable from '../components/admin/participate/ParticipantsTable'
+import TextbookManagement from '../components/admin/textbook/TextbookManagement'
+import Questionaire from '../components/exam/Questionnaire'
 import Programming from '../components/exam/Programming'
 import TimeCount from '../components/common/TimeCount'
 import Exam from '../components/exam/Exam'
+import EndExam from '../components/exam/EndExam'
 
 Vue.use(VueRouter)
 
@@ -56,7 +57,8 @@ const routes = [
       // 程序阅读路由
       { path: 'questionnaire', component: Questionaire },
       { path: 'programming', component: Programming },
-      { path: 'timer', component: TimeCount }
+      { path: 'timer', component: TimeCount },
+      { path: 'exam-end', component: EndExam }
     ]
   }
 ]

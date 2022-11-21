@@ -1,17 +1,17 @@
 <template>
   <!--新建实验2-组别管理-->
-  <el-dialog title="组别管理" :visible.sync="visible" width="35%" >
+  <el-dialog title="组别管理" :visible="visible" width="35%" :show-close="false">
     <el-form :model="form" label-width="80px" >
-      <div v-for="(item, index) in form.groups" :key="index">
+      <div v-for="(item, index) in form.groupInfoList" :key="index">
         <div style="font-weight: bold">组别{{index+1}}<br/></div>
         <el-form-item label="组别名">
           <el-input v-model="item.groupName"></el-input>
         </el-form-item>
-        <el-form-item label="求解器">
-          <el-select v-model="item.solver">
-            <el-option v-for="(solver, index) in allSolverTypes" :key="index" :label="solver" :value="solver"></el-option>
-          </el-select>
-        </el-form-item>
+        <!--<el-form-item label="求解器">-->
+        <!--  <el-select v-model="item.solver">-->
+        <!--    <el-option v-for="(solver, index) in allSolverTypes" :key="index" :label="solver" :value="solver"></el-option>-->
+        <!--  </el-select>-->
+        <!--</el-form-item>-->
       </div>
     </el-form>
     <div class="function-box">
@@ -35,7 +35,7 @@ export default {
   },
   props: {
     form: {
-      groups: []
+      groupInfoList: []
     },
     visible: {
       type: Boolean

@@ -12,7 +12,7 @@
       <el-table-column label="实验名" prop="title" width="200"></el-table-column>
       <el-table-column label="开始时间" prop="startTime" width="200"></el-table-column>
       <el-table-column label="状态" prop="state" width="200" :formatter="changeStatus"></el-table-column>
-      <el-table-column label="操作" >
+      <el-table-column label="操作" align="center">
         <template slot-scope="scope">
           <el-button
             size="mini"
@@ -49,13 +49,12 @@ export default {
       // 查询参数
       userInfo: {},
       queryInfo: {
-        userId: 0
-        // pageIndex: 1,
-        // pageSize: 10
+        userId: 0,
+        pageIndex: 1,
+        pageSize: 5
       },
       pageTotal: 100,
-      tableData: [
-      ]
+      tableData: []
     }
   },
   created () {
@@ -68,13 +67,15 @@ export default {
       this.queryInfo.userId = this.userInfo.id
     },
     async getExperimentList () {
-      const { data: res } = await this.$http.get('user/experstopart', {
-        params: this.queryInfo
-      })
-      this.tableData = res.data
+      const { data: res } = await this.$http.post('admin/getnotinexpers', this.queryInfo)
+      if (res.status !== 200) {
+        return this.$message.error('获取实验信息错误')
+      }
+      this.tableData = res.data.experInfoList
+      this.pageTotal = res.data.recordCount
     },
     handlePageChange (newPage) {
-      this.queryInfo.pagenum = newPage
+      this.queryInfo.pageIndex = newPage
       this.getExperimentList()
     },
     // 状态转换
@@ -93,7 +94,7 @@ export default {
         phaseNumber: 1
       })
       const isProg = res.data.isProg
-      this.userInfo.phase = 1
+      this.userInfo.phaseNumber = 1
       this.userInfo.experId = experiment.experId
       this.userInfo.experName = experiment.title
       sessionStorage.setItem('userInfo', JSON.stringify(this.userInfo))

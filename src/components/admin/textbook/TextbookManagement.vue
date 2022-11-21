@@ -4,8 +4,8 @@
     <!--新增教材按钮-->
     <div class="function-box">
       <el-button
-        type="info"
-        @click="textbookFormDialogTitle = '新增教材'; textbookFormVisible = true"
+        type="warning"
+        @click="textbookFormVisible = true"
       >新增教材
       </el-button>
     </div>
@@ -45,68 +45,32 @@
       </el-pagination>
     </div>
 
-    <!--教材信息添加,修改对话框-->
-    <el-dialog :title="textbookFormDialogTitle" :visible.sync="textbookFormVisible" width="30%">
-      <el-form :model="textbookForm" label-width="80px" >
-        <el-form-item label="文件名">
-          <el-input v-model="textbookForm.name"></el-input>
-        </el-form-item>
-        <el-form-item label="所属实验">
-          <el-select v-model="textbookForm.region" placeholder="请选择所属实验">
-            <el-option v-for="(item, index) in experimentItems" :key="index"
-                       :label="item.elabel" :value="item.evalue"></el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="所属组别">
-          <el-select v-model="textbookForm.region" placeholder="请选择所属组别">
-            <el-option v-for="(item, index) in groupItems" :key="index"
-                       :label="item.glabel" :value="item.gvalue"></el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item>
-          <el-upload
-            action="https://jsonplaceholder.typicode.com/posts/"
-            :on-remove="handleRemove"
-            :before-remove="beforeRemove"
-            :on-change="handleUpload"
-            :file-list="fileList"
-            :auto-upload="false">
-            <el-button size="small" type="primary">点击上传</el-button>
-          </el-upload>
-        </el-form-item>
-      </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="textbookFormVisible = false">确 定</el-button>
-        <el-button @click="textbookFormVisible = false">取 消</el-button>
-      </div>
-    </el-dialog>
+    <textbook-add-dialog :visible="textbookFormVisible"
+                         @close-dialog="textbookFormVisible = false"></textbook-add-dialog>
   </div>
 </template>
 
 <script>
-import ContainerHeader from '../common/ContainerHeader'
-import { baseUrl } from '../../vue.config'
+import ContainerHeader from '../../common/ContainerHeader'
+import TextbookAddDialog from './TextbookAddDialog'
+import { baseUrl } from '../../../vue.config'
 
 export default {
   name: 'TextbookDownload',
   components: {
-    ContainerHeader
+    ContainerHeader,
+    TextbookAddDialog
   },
   data () {
     return {
+      tableData: [],
+      textbookUrlPrefix: baseUrl + 'train/files/',
       pageTotal: 100,
       query: {
         pageIndex: 1,
         pageSize: 5
       },
-      textbookFormVisible: false,
-      textbookForm: {},
-      textbookFormDialogTitle: '',
-      textbookUrlPrefix: baseUrl + 'train/files/',
-      experimentItems: [],
-      groupItems: [],
-      tableData: [],
-      fileList: [{ name: 'food.jpeg', url: 'https://fuss10.elemecdn.com/3/63/4e7f3a15429bfda99bce42a18cdd1jpeg.jpeg?imageMogr2/thumbnail/360x360/format/webp/quality/100' }]
+      textbookFormVisible: false
     }
   },
   created () {
@@ -117,27 +81,15 @@ export default {
       const { data: res } = await this.$http.get('admin/listalltrainingmaterial', {
         params: this.query
       })
+      if (res.status !== 200) {
+        return this.$message.error('获取教材失败')
+      }
       this.pageTotal = res.data.recordCount
       this.tableData = res.data.queryTrainingMaterialInfoList
     },
     handlePageChange (newPage) {
       this.query.pageIndex = newPage
       this.getTextbookList()
-    },
-    // 触发新增教材按钮
-    addTextbook () {
-      // TODO
-    },
-    // 文件上传
-    handleUpload () {
-      console.log(this.fileList)
-    },
-    // 移除上传文件
-    handleRemove (file, fileList) {
-      console.log(file, fileList)
-    },
-    beforeRemove (file, fileList) {
-      return this.$confirm(`确定移除 ${file.name}？`)
     },
     // 触发删除教材按钮
     handleDelete (textbookId) {

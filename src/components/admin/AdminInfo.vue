@@ -56,10 +56,10 @@ export default {
     async getAdminInfo () {
       const userInfo = JSON.parse(sessionStorage.getItem('userInfo'))
       const { data: res } = await this.$http.get('user/getpersonalinfo', {
-        params: { id: userInfo.id }
+        params: { userId: userInfo.id }
       })
-      if (res === null) {
-        return this.$message.error('用户信息查询出错！')
+      if (res.data === null) {
+        return this.$message.error('管理员信息查询有误')
       }
       this.account = res.data.username
       this.username = res.data.realname

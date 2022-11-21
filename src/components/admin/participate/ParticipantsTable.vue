@@ -3,7 +3,7 @@
     <container-header title="参试人员列表"></container-header>
     <div class="function-box">
       <el-button
-        type="info"
+        type="warning"
         @click="userAddFormVisible = true"
       >添加参试人员</el-button>
     </div>
@@ -13,7 +13,7 @@
       :data="participantsTableData"
       stripe
       border>
-      <el-table-column type="index" width="70"></el-table-column>
+      <!--<el-table-column type="index" width="70"></el-table-column>-->
       <el-table-column label="姓名" prop="realname" width="100"></el-table-column>
       <el-table-column label="学号" prop="username" width="100"></el-table-column>
       <!--<el-table-column label="管理员" prop="isAdmin" width="100" :formatter="changeStatus"></el-table-column>-->
@@ -22,12 +22,12 @@
         <template slot-scope="scope">
           <el-button
             size="mini"
-            type="primary"
+            type="danger"
             @click="handleDelete(scope.row.userId)">删除
           </el-button>
           <el-button
             size="mini"
-            type="success"
+            type="primary"
             @click="handleAddUserToExperiment(scope.row.userId)">添加到实验
           </el-button>
         </template>
@@ -38,10 +38,10 @@
       <el-pagination
         background
         layout="prev, pager, next"
-        :current-page="query.pageIndex"
-        :page-size="query.pageSize"
-        :total="pageTotal"
-        @current-change="handlePageChange">
+        :current-page="userQueryInfo.pageIndex"
+        :page-size="userQueryInfo.pageSize"
+        :total="userQueryPageTotal"
+        @current-change="handleUserPageChange">
       </el-pagination>
     </div>
 
@@ -50,63 +50,34 @@
                      @finish-add-participate="getAllParticipates"
                      @close-dialog="userAddFormVisible = false"></user-add-dialog>
 
-    <!--添加用户到实验对话框-->
-    <el-dialog title="添加用户到实验" :visible.sync="addUserToExperimentFormVisible" width="70%">
-      <!--实验列表-->
-      <el-table
-        :data="experimentTableData"
-        stripe
-        border>
-        <el-table-column type="selection"></el-table-column>
-        <el-table-column label="序号" prop="id"></el-table-column>
-        <el-table-column label="实验名" prop="expName"></el-table-column>
-        <el-table-column label="开始时间" prop="startTime"></el-table-column>
-        <el-table-column label="添加到组" prop="group">
-          <template slot-scope="scope">
-            <el-select v-model="scope.row.groupToParticipate" placeholder="请选择所属组别">
-              <el-option v-for="(item, index) in scope.row.groupList" :key="index"
-                         :label="item.label" :value="item.value"></el-option>
-            </el-select>
-          </template>
-        </el-table-column>
-      </el-table>
-      <!--底部功能区-->
-      <div slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="addUserToExperimentFormVisible = false">添 加</el-button>
-        <el-button @click="addUserToExperimentFormVisible = false">取 消</el-button>
-      </div>
-    </el-dialog>
+    <add-user-to-experiment-dialog :visible.sync="addUserToExperimentFormVisible"
+                                   :user-id="selectedUserId"
+                                   @close-dialog="addUserToExperimentFormVisible = false"></add-user-to-experiment-dialog>
   </div>
 </template>
 
 <script>
-import ContainerHeader from '../common/ContainerHeader'
-import UserAddDialog from './AddExperimentDialog/UserAddDialog'
+import ContainerHeader from '../../common/ContainerHeader'
+import UserAddDialog from '../AddExperimentDialog/UserAddDialog'
+import AddUserToExperimentDialog from './AddUserToExperimentDialog'
 export default {
   name: 'ParticipantsTable',
   components: {
     ContainerHeader,
-    UserAddDialog
+    UserAddDialog,
+    AddUserToExperimentDialog
   },
   data () {
     return {
-      // 参试人员列表数据
-      participantsTableData: [],
-      userAddFormVisible: false,
-      userAddForm: {
-        studentId: '',
-        name: '',
-        isAdmin: false
-      },
-      addUserToExperimentFormVisible: false,
-      addUserToExperimentForm: {
-      },
-      multipleSelection: [],
-      pageTotal: 100,
-      query: {
+      userQueryPageTotal: 0,
+      userQueryInfo: {
         pageIndex: 1,
         pageSize: 5
-      }
+      },
+      participantsTableData: [],
+      userAddFormVisible: false,
+      addUserToExperimentFormVisible: false,
+      selectedUserId: ''
     }
   },
   created () {
@@ -116,13 +87,13 @@ export default {
     // 获取所有参试人员
     async getAllParticipates () {
       const { data: res } = await this.$http.get('admin/listalltester', {
-        params: this.query
+        params: this.userQueryInfo
       })
-      this.pageTotal = res.data.recordCount
+      this.userQueryPageTotal = res.data.recordCount
       this.participantsTableData = res.data.testerInfoList
     },
-    handlePageChange (newPage) {
-      this.query.pageIndex = newPage
+    handleUserPageChange (newPage) {
+      this.userQueryInfo.pageIndex = newPage
       this.getAllParticipates()
     },
     changeStatus (row, column) {
@@ -151,9 +122,9 @@ export default {
       })
     },
     // 触发添加到实验按钮
-    handleAddUserToExperiment (index, row) {
+    handleAddUserToExperiment (userId) {
       this.addUserToExperimentFormVisible = true
-      // TODO
+      this.selectedUserId = userId
     }
   }
 }
