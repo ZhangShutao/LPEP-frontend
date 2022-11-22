@@ -51,9 +51,9 @@ export default {
       queryInfo: {
         userId: 0,
         pageIndex: 1,
-        pageSize: 5
+        pageSize: 10
       },
-      pageTotal: 100,
+      pageTotal: 0,
       tableData: []
     }
   },
@@ -67,11 +67,13 @@ export default {
       this.queryInfo.userId = this.userInfo.id
     },
     async getExperimentList () {
-      const { data: res } = await this.$http.post('admin/getnotinexpers', this.queryInfo)
+      const { data: res } = await this.$http.get('user/experstopart', {
+        params: { userId: this.queryInfo.userId }
+      })
       if (res.status !== 200) {
         return this.$message.error('获取实验信息错误')
       }
-      this.tableData = res.data.experInfoList
+      this.tableData = res.data
       this.pageTotal = res.data.recordCount
     },
     handlePageChange (newPage) {

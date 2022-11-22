@@ -1,16 +1,17 @@
 <template>
   <!--新建实验4-问题管理-->
-  <el-dialog title="问题管理" :visible.sync="visible" width="60%">
-    <el-button @click="generateAddExperimentTableData">生成数据</el-button>
+  <el-dialog title="问题管理" :visible.sync="visible" width="60%"
+             :show-close="false"
+             :before-close="beforeClose">
     <el-table
       :data="addExperimentTableData"
       stripe
       border>
-      <el-table-column label="序号" prop="id"></el-table-column>
+      <el-table-column type="index"></el-table-column>
       <el-table-column label="阶段" prop="phase"></el-table-column>
       <el-table-column label="阶段序号" prop="phaseIndex"></el-table-column>
       <el-table-column label="类型" prop="phaseType"></el-table-column>
-      <el-table-column label="组别" prop="group"></el-table-column>
+      <el-table-column label="组别" prop="groupName"></el-table-column>
       <el-table-column label="状态" prop="status"></el-table-column>
       <el-table-column label="操作" align="center">
         <template slot-scope="scope">
@@ -29,19 +30,14 @@
     <!--问卷类型题目-->
     <questionnaire-dialog :visible.sync="questionnaireVisible"
                           :questionList="currentUpdatedQuestions"
-                          @delete-question="handleDeleteQuestion"
-                          @add-option="handleAddOption"
-                          @add-question="handleAddQuestion"
-                          @finish-add-questions="handlerFinishAddQuestions"
+                          @finish-add-questions="handlerFinishAddQuestionnaireQuestions"
                           @close-dialog="handleCloseQuestionnaireDialog">
     </questionnaire-dialog>
+    <!--编程类型题目-->
     <programming-dialog
                         :visible.sync="programmingVisible"
                         :questionList="currentUpdatedQuestions"
-                        @delete-question="handleDeleteQuestion"
-                        @add-sample="handleAddSample"
-                        @add-question="handleAddQuestion"
-                        @finish-add-questions="handlerFinishAddQuestions"
+                        @finish-add-questions="handlerFinishAddQuestionnaireQuestions"
                         @close-dialog="handleCloseProgrammingDialog">
     </programming-dialog>
   </el-dialog>
@@ -72,44 +68,32 @@ export default {
       type: Boolean
     }
   },
+  watch: {
+    visible: {
+      handler () {
+        this.generateAddExperimentTableData()
+      }
+    }
+  },
   methods: {
+    beforeClose () {
+      this.$emit('update:visible', false)
+    },
     // TODO 成新建实验表中的数据(仅限开发使用)
     generateAddExperimentTableData () {
-      this.addExperimentForm.phases = [
-        {
-          phaseName: '阶段1',
-          phaseType: '问卷'
-        },
-        {
-          phaseName: '阶段2',
-          phaseType: '编程'
-        }
-      ]
-      this.addExperimentForm.groups = [
-        {
-          groupName: '组别1',
-          solver: 'ASP求解器'
-        },
-        {
-          groupName: '组别2',
-          solver: '编程'
-        }
-      ]
-      let count = 1
-      this.addExperimentForm.phases.forEach((phase, index) => {
-        this.addExperimentForm.groups.forEach((group) => {
+      this.addExperimentTableData = []
+      this.addExperimentForm.phaseInfoList.forEach((phase, index) => {
+        this.addExperimentForm.groupInfoList.forEach((group) => {
           if (phase.phaseName !== '' && group.groupName !== '') {
             this.addExperimentTableData.push({
-              id: count,
               phase: phase.phaseName,
-              phaseIndex: index,
-              phaseType: phase.phaseType,
-              group: group.groupName,
+              phaseIndex: phase.number,
+              phaseType: phase.phaseType === 0 ? '问卷' : '编程',
+              groupName: group.groupName,
               status: '未添加',
               // 数据由currentAddedQuestions添加
               questions: []
             })
-            count++
           }
         })
       })
@@ -126,42 +110,22 @@ export default {
         this.programmingVisible = true
       }
     },
-    handleDeleteQuestion (index) {
-      this.currentUpdatedQuestions.splice(index, 1)
-    },
-    // 添加下一个问题
-    handleAddQuestion () {
-      this.currentUpdatedQuestions.push(
-        {
-          type: '',
-          content: '',
-          options: [],
-          timeLimit: '',
-          testSamples: [
-            {
-              inputs: [],
-              outputs: [],
-              runningTimeLimit: 0
-            }
-          ]
-        }
-      )
-    },
-    handleAddOption (index) {
-      this.currentUpdatedQuestions[index].options.push('')
-    },
-    handleAddSample (index) {
-      this.currentUpdatedQuestions[index].testSamples.push({
-        inputs: [],
-        outputs: [],
-        runningTimeLimit: 0
+    async handlerFinishAddQuestionnaireQuestions () {
+      const { data: res } = await this.$http.post('admin/addnonprogquestion', {
+        experId: this.addExperimentForm.experId,
+        groupName: this.addExperimentTableData[this.currentQuestionId].groupName,
+        phaseNumber: this.addExperimentTableData[this.currentQuestionId].phaseIndex,
+        addNonProgQuestionInfoList: this.currentUpdatedQuestions
       })
-    },
-    handlerFinishAddQuestions () {
+      if (res.status !== 201) {
+        return this.$message.error('问题添加失败')
+      }
+      this.$message.success('问题添加成功')
       this.addExperimentTableData[this.currentQuestionId].questions = this.currentUpdatedQuestions
       if (this.currentUpdatedQuestions.length > 0) {
         this.addExperimentTableData[this.currentQuestionId].status = '已添加'
       }
+      this.handleCloseQuestionnaireDialog()
     },
     handleCloseQuestionnaireDialog () {
       this.questionnaireVisible = false

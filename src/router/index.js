@@ -17,6 +17,7 @@ import Programming from '../components/exam/Programming'
 import TimeCount from '../components/common/TimeCount'
 import Exam from '../components/exam/Exam'
 import EndExam from '../components/exam/EndExam'
+import QuestionnaireDialog from '../components/admin/AddExperimentDialog/QuestionnaireDialog'
 
 Vue.use(VueRouter)
 
@@ -60,6 +61,10 @@ const routes = [
       { path: 'timer', component: TimeCount },
       { path: 'exam-end', component: EndExam }
     ]
+  },
+  {
+    path: '/1',
+    component: QuestionnaireDialog
   }
 ]
 

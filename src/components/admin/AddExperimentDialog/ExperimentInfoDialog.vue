@@ -1,25 +1,19 @@
 <template>
   <!--新建实验1-基本信息-->
-  <el-dialog title="基本信息" :visible.sync="visible" width="35%" :show-close="false" :before-close='beforeClose'>
-    <el-form :model="form" label-width="80px" >
-      <el-form-item label="实验名">
+  <el-dialog title="基本信息" :visible.sync="visible" width="35%" :show-close="false" :before-close="beforeClose">
+    <el-form :model="form" label-width="80px" :rules="formRules" ref="formRef">
+      <el-form-item label="实验名" prop="experName">
         <el-input v-model="form.experName"></el-input>
       </el-form-item>
-      <el-form-item label="开始时间">
+      <el-form-item label="开始时间" prop="startTime">
         <el-date-picker
-          v-model="form.startDate"
-          type="date"
-          value-format="yyyy-MM-dd"
-          placeholder="选择日期">
-        </el-date-picker>
-        <el-time-picker
           v-model="form.startTime"
-          :picker-options="{selectableRange: '00:00:00 - 23:59:59'}"
-          value-format="HH:mm:ss"
-          placeholder="任意时间点">
-        </el-time-picker>
+          type="datetime"
+          value-format="yyyy-MM-dd HH:mm:ss"
+          placeholder="选择日期时间" >
+        </el-date-picker>
       </el-form-item>
-      <el-form-item label="工作目录">
+      <el-form-item label="工作目录" prop="workspace">
         <el-input v-model="form.workspace"></el-input>
       </el-form-item>
     </el-form>
@@ -33,12 +27,24 @@
 <script>
 export default {
   name: 'ExperimentInfoDialog',
+  data () {
+    return {
+      formRules: {
+        experName: [
+          { required: true, message: '请输入实验名', trigger: 'blur' }
+        ],
+        startTime: [
+          { required: true, message: '请选择时间', trigger: 'change' }
+        ],
+        workspace: [
+          { required: true, message: '请输入共组目录', trigger: 'blur' }
+        ]
+      }
+    }
+  },
   props: {
     form: {
       experName: {
-        type: String
-      },
-      startDate: {
         type: String
       },
       startTime: {
@@ -57,7 +63,17 @@ export default {
       this.$emit('update:visible', false)
     },
     handleNextDialog (type) {
-      this.$emit('next-dialog', type)
+      if (type === 1) {
+        this.$refs.formRef.validate((value) => {
+          if (!value) {
+            return false
+          }
+          console.log('校验成功')
+          this.$emit('next-dialog', type)
+        })
+      } else {
+        this.$emit('next-dialog', type)
+      }
     }
   }
 }

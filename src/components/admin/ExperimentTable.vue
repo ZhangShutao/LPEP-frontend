@@ -17,7 +17,6 @@
                        :filters="[{ text: '未开始', value:  0}, { text: '已结束', value: 1 }, { text: '进行中', value: 2 }]"
                        :filter-method="filterStatus">
       </el-table-column>
-      <!--表头属性(操作栏)-->
       <el-table-column label="操作" align="center">
         <template slot-scope="scope">
           <el-button
@@ -41,7 +40,6 @@
         </template>
       </el-table-column>
     </el-table>
-    <!--分页按钮-->
     <div class="pagination">
       <el-pagination
         background
@@ -53,17 +51,21 @@
       </el-pagination>
     </div>
     <!--新建实验1-基本信息-->
-    <experiment-info-dialog :form="addExperimentForm" :visible="addExperimentDialogVisiable[0]"
+    <experiment-info-dialog :form="addExperimentForm"
+                            :visible="addExperimentDialogVisiable[0]"
                             @next-dialog="handleNextDialog"></experiment-info-dialog>
     <!--新建实验2-组别管理-->
-    <group-dialog  :form="addExperimentForm" :visible="addExperimentDialogVisiable[1]"
-                   @add-group="addGroup" @next-dialog="handleNextDialog"></group-dialog>
+    <group-dialog  :form="addExperimentForm"
+                   :visible="addExperimentDialogVisiable[1]"
+                   @next-dialog="handleNextDialog"></group-dialog>
     <!--新建实验3-实验阶段管理-->
-    <phase-dialog :form="addExperimentForm" :visible="addExperimentDialogVisiable[2]"
+    <phase-dialog :form="addExperimentForm"
+                  :visible="addExperimentDialogVisiable[2]"
                   @create-experiment="handleCreateExperiment"
-                  @add-phase="addPhase" @next-dialog="handleNextDialog"></phase-dialog>
+                  @next-dialog="handleNextDialog"></phase-dialog>
     <!--新建实验4-问题管理-->
-    <question-dialog :addExperimentForm="addExperimentForm" :visible="addExperimentDialogVisiable[3]"
+    <question-dialog :addExperimentForm="addExperimentForm"
+                     :visible="addExperimentDialogVisiable[3]"
                      @next-dialog="handleNextDialog"></question-dialog>
     <!--新建实验7-参试人员管理-->
     <user-dialog :form="addExperimentForm"
@@ -95,7 +97,7 @@ export default {
       pageTotal: 100,
       query: {
         pageIndex: 1,
-        pageSize: 3
+        pageSize: 5
       },
       // 初始新增实验表单
       addExperimentForm: {
@@ -116,9 +118,7 @@ export default {
             phaseType: ''
           }
         ]
-
       },
-      fileList: [],
       // 当前显示对话框
       visiableDialogIndex: 0,
       addExperimentDialogVisiable: [
@@ -213,22 +213,6 @@ export default {
       this.visiableDialogIndex = 0
       this.$set(this.addExperimentDialogVisiable, 0, true)
     },
-    addGroup () {
-      this.addExperimentForm.groupInfoList.push(
-        {
-          groupName: ''
-        }
-      )
-    },
-    addPhase () {
-      this.addExperimentForm.phaseInfoList.push(
-        {
-          number: this.addExperimentForm.phaseInfoList.length + 1,
-          phaseName: '',
-          phaseType: ''
-        }
-      )
-    },
     // 创建实验
     async handleCreateExperiment () {
       const { data: res } = await this.$http.post('admin/createexper', this.addExperimentForm)
@@ -236,6 +220,11 @@ export default {
         return this.$message.error('实验创建失败')
       }
       this.$message.success('实验创建成功')
+      // 更新表单参数
+      this.addExperimentForm.experId = res.data.experId
+      this.addExperimentForm.status = res.data.status
+      this.getExperimentList()
+      this.handleNextDialog(1)
     }
   }
 }

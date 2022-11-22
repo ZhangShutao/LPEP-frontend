@@ -102,9 +102,6 @@ export default {
     closeDialog () {
       this.$emit('close-dialog')
     },
-    handleDeleteQuestion (index) {
-      this.$emit('delete-question', index)
-    },
     validateForm (fun) {
       // 表单校验
       if (this.questionList.length === 0) {
@@ -122,11 +119,34 @@ export default {
         })
       }
     },
+    handleDeleteQuestion (index) {
+      this.questionList.splice(index, 1)
+    },
     addQuestion () {
-      this.validateForm(() => { this.$emit('add-question') })
+      this.validateForm(() => {
+        this.questionList.push(
+          {
+            type: '',
+            content: '',
+            options: [],
+            timeLimit: '',
+            testSamples: [
+              {
+                inputs: [],
+                outputs: [],
+                runningTimeLimit: 0
+              }
+            ]
+          }
+        )
+      })
     },
     addTestSample (questionIndex) {
-      this.$emit('add-sample', questionIndex)
+      this.questionList[questionIndex].testSamples.push({
+        inputs: [],
+        outputs: [],
+        runningTimeLimit: 0
+      })
     },
     finishAddQuestions () {
       this.validateForm(() => { this.$emit('finish-add-questions') })

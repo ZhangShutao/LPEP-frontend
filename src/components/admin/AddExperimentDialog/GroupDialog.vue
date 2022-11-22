@@ -1,10 +1,17 @@
 <template>
   <!--新建实验2-组别管理-->
-  <el-dialog title="组别管理" :visible="visible" width="35%" :show-close="false">
-    <el-form :model="form" label-width="80px" >
+  <el-dialog title="组别管理" :visible="visible" width="35%"
+             :show-close="false"
+             :before-close="beforeClose">
+    <el-form :model="form" label-width="80px" :rules="formRules" ref="formRef">
       <div v-for="(item, index) in form.groupInfoList" :key="index">
-        <div style="font-weight: bold">组别{{index+1}}<br/></div>
-        <el-form-item label="组别名">
+        <div class="group-title">
+          组别{{index+1}}
+          <el-button type="danger" @click="deleteGroup(index)" size="small" plain>删除组别</el-button>
+        </div>
+        <el-form-item label="组别名"
+                      :prop="'groupInfoList.' + index + '.groupName'"
+                      :rules="formRules.groupName">
           <el-input v-model="item.groupName"></el-input>
         </el-form-item>
         <!--<el-form-item label="求解器">-->
@@ -16,6 +23,7 @@
     </el-form>
     <div class="function-box">
       <el-button type="primary" @click="addGroup" size="small" plain>添加组别</el-button>
+
     </div>
     <div slot="footer">
       <el-button type="primary" @click="handleNextDialog(-1)">上一步</el-button>
@@ -30,7 +38,12 @@ export default {
   name: 'GroupDialog',
   data () {
     return {
-      allSolverTypes: []
+      allSolverTypes: [],
+      formRules: {
+        groupName: [
+          { required: true, message: '请输入组别名', trigger: 'blur' }
+        ]
+      }
     }
   },
   props: {
@@ -45,8 +58,20 @@ export default {
     this.getAllSolverTypes()
   },
   methods: {
+    beforeClose () {
+      this.$emit('update:visible', false)
+    },
     handleNextDialog (type) {
-      this.$emit('next-dialog', type)
+      if (type === 1) {
+        this.$refs.formRef.validate((value) => {
+          if (!value) {
+            return false
+          }
+          this.$emit('next-dialog', type)
+        })
+      } else {
+        this.$emit('next-dialog', type)
+      }
     },
     // 获取所有求解器
     async getAllSolverTypes () {
@@ -54,12 +79,26 @@ export default {
       this.allSolverTypes = res.data
     },
     addGroup () {
-      this.$emit('add-group')
+      this.form.groupInfoList.push(
+        {
+          groupName: '',
+          groupId: 0
+        }
+      )
+    },
+    deleteGroup (index) {
+      this.form.groupInfoList.splice(index, 1)
     }
   }
 }
 </script>
 
-<style scoped>
-
+<style lang="less" scoped>
+.group-title {
+  font-weight: bold;
+  padding: 10px;
+  .el-button {
+    margin-left: 20px;
+  }
+}
 </style>

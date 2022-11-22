@@ -9,7 +9,7 @@
         <el-form-item :label="index + 1 + '. ' + question.content" v-if="question.type === 1">
           <!--选项-->
           <el-radio-group v-model="question.reply">
-            <div v-for="(option, index) in JSON.parse(question.options)" :key="index">
+            <div v-for="(option, index) in question.options" :key="index">
               <el-radio :label="String.fromCharCode('A'.charCodeAt(0)+ index)" border >
                 {{ option }}</el-radio>
             </div>
