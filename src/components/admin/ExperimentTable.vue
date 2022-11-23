@@ -94,10 +94,10 @@ export default {
   data () {
     return {
       experimentTableData: [],
-      pageTotal: 100,
+      pageTotal: 0,
       query: {
         pageIndex: 1,
-        pageSize: 5
+        pageSize: 10
       },
       // 初始新增实验表单
       addExperimentForm: {
@@ -108,7 +108,8 @@ export default {
         workspace: '',
         groupInfoList: [
           {
-            groupName: ''
+            groupName: '',
+            groupId: ''
           }
         ],
         phaseInfoList: [
@@ -223,6 +224,11 @@ export default {
       // 更新表单参数
       this.addExperimentForm.experId = res.data.experId
       this.addExperimentForm.status = res.data.status
+      res.data.groups.forEach((item, index) => {
+        if (this.addExperimentForm.groupInfoList[index].groupName === item.groupName) {
+          this.addExperimentForm.groupInfoList[index].groupId = item.groupId
+        }
+      })
       this.getExperimentList()
       this.handleNextDialog(1)
     }

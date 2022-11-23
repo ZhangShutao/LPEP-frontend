@@ -38,7 +38,6 @@ export default {
   name: 'GroupDialog',
   data () {
     return {
-      allSolverTypes: [],
       formRules: {
         groupName: [
           { required: true, message: '请输入组别名', trigger: 'blur' }
@@ -53,9 +52,6 @@ export default {
     visible: {
       type: Boolean
     }
-  },
-  created () {
-    this.getAllSolverTypes()
   },
   methods: {
     beforeClose () {
@@ -72,11 +68,6 @@ export default {
       } else {
         this.$emit('next-dialog', type)
       }
-    },
-    // 获取所有求解器
-    async getAllSolverTypes () {
-      const { data: res } = await this.$http.get('exper/listallrunner')
-      this.allSolverTypes = res.data
     },
     addGroup () {
       this.form.groupInfoList.push(

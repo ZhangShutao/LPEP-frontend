@@ -14,7 +14,9 @@
         </el-date-picker>
       </el-form-item>
       <el-form-item label="工作目录" prop="workspace">
-        <el-input v-model="form.workspace"></el-input>
+        <el-input v-model="form.workspace">
+          <template slot="prepend"></template>
+        </el-input>
       </el-form-item>
     </el-form>
     <div slot="footer">

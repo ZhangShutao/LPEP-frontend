@@ -1,6 +1,8 @@
 <template>
   <!--新建实验3-实验阶段管理-->
-  <el-dialog title="实验阶段管理" :visible.sync="visible" width="35%">
+  <el-dialog title="实验阶段管理" :visible.sync="visible" width="35%"
+             :show-close="false"
+             :before-close="beforeClose">
     <el-form :model="form" label-width="80px" :rules="formRules" ref="formRef">
       <div v-for="(item, index) in form.phaseInfoList" :key="index">
         <div class="phase-title">
@@ -59,6 +61,9 @@ export default {
     }
   },
   methods: {
+    beforeClose () {
+      this.$emit('update:visible', false)
+    },
     deletePhase (index) {
       this.form.phaseInfoList.splice(index, 1)
     },

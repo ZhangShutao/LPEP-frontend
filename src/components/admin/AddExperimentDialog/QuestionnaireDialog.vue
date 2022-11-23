@@ -4,7 +4,7 @@
              :show-close="false"
              :before-close="beforeClose">
     <!--每个问题对应一个表单-->
-    <el-form label-width="80px"  :rules="questionnaireRules" :ref="'questionnaireRef' + index"
+    <el-form label-width="80px"  :rules="questionnaireRules" ref="questionnaireRef"
              :model="question"
              v-for="(question, index) in questionList" :key="index">
       <div class="question-title">
@@ -92,8 +92,7 @@ export default {
       if (this.questionList.length === 0) {
         fun()
       } else {
-        const formName = 'questionnaireRef' + (this.questionList.length - 1)
-        this.$refs[formName][0].validate((valid) => {
+        this.$refs.questionnaireRef[0].validate((valid) => {
           if (valid) {
             fun()
           } else {

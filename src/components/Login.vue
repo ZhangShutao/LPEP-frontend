@@ -49,8 +49,8 @@ export default {
       this.loginForm.password = 'admin'
     },
     test2 () {
-      this.loginForm.username = '22002'
-      this.loginForm.password = 'lisi'
+      this.loginForm.username = '22001'
+      this.loginForm.password = 'zhangsan'
     },
     // 用户登录
     async login () {

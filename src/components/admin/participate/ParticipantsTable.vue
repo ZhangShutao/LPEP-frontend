@@ -13,7 +13,7 @@
       :data="participantsTableData"
       stripe
       border>
-      <!--<el-table-column type="index" width="70"></el-table-column>-->
+      <el-table-column type="index" width="70"></el-table-column>
       <el-table-column label="姓名" prop="realname" width="100"></el-table-column>
       <el-table-column label="学号" prop="username" width="100"></el-table-column>
       <!--<el-table-column label="管理员" prop="isAdmin" width="100" :formatter="changeStatus"></el-table-column>-->
@@ -23,7 +23,7 @@
           <el-button
             size="mini"
             type="danger"
-            @click="handleDelete(scope.row.userId)">删除
+            @click="handleDelete(scope.row.userId)">删除用户
           </el-button>
           <el-button
             size="mini"
@@ -72,7 +72,7 @@ export default {
       userQueryPageTotal: 0,
       userQueryInfo: {
         pageIndex: 1,
-        pageSize: 5
+        pageSize: 10
       },
       participantsTableData: [],
       userAddFormVisible: false,

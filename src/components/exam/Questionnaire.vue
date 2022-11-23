@@ -23,7 +23,7 @@
       </div>
       <!--提交所有结果-->
       <el-form-item class="button-box">
-        <el-button type="primary" @click="onSubmit">提交</el-button>
+        <el-button type="primary" @click="handleSubmit">提交</el-button>
       </el-form-item>
     </el-form>
   </div>
@@ -68,11 +68,27 @@ export default {
     },
     // 提交答案
     async handleSubmit () {
-      // this.questionList.forEach((question, index) => {
-      //   console.log(index + ' ' + question.choice)
-      // })
-      // TODO 后端请求
-      this.$refs.questionnaireFormRef.resetFields()
+      // 生成答案
+      const answers = []
+      this.questionList.forEach((question) => {
+        answers.push({
+          questionId: question.questionId,
+          reply: question.reply
+        })
+      })
+      const { data: res } = await this.$http.post('exper/nonprogsubmit', {
+        userId: this.userInfo.id,
+        answers: answers
+      })
+      if (res.status !== 205) {
+        return this.$message.error('提交答案出错')
+      }
+      this.$confirm('提交成功,是否开始下一阶段?', '提示', {
+        type: 'success '
+      }).then(() => {
+        // TODO （后端请求）
+
+      })
     },
     async gotoNextPhase () {
       // 更新阶段
@@ -81,7 +97,7 @@ export default {
       sessionStorage.setItem('userInfo', JSON.stringify(this.userInfo))
       // 获取下一阶段实验类型
       const { data: res } = await this.$http.post('exper/getnextphasestatus', {
-        userId: this.userInfo.userId,
+        userId: this.userInfo.id,
         experId: this.userInfo.experId,
         phaseNumber: this.userInfo.phase
       })
@@ -90,7 +106,6 @@ export default {
       }
       if (res.data.isProg === 0) {
         this.getQuestionList()
-        console('获取下个题目')
       } else {
         this.$router.push('/exam/programming')
       }

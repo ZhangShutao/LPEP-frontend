@@ -34,10 +34,11 @@
                           @close-dialog="handleCloseQuestionnaireDialog">
     </questionnaire-dialog>
     <!--编程类型题目-->
-    <programming-dialog
-                        :visible.sync="programmingVisible"
+    <programming-dialog :visible.sync="programmingVisible"
                         :questionList="currentUpdatedQuestions"
-                        @finish-add-questions="handlerFinishAddQuestionnaireQuestions"
+                        :experimentId="currentExperId"
+                        :groupId="currentGroupId"
+                        @finish-add-questions="handlerFinishAddProgrammingQuestions"
                         @close-dialog="handleCloseProgrammingDialog">
     </programming-dialog>
   </el-dialog>
@@ -56,6 +57,8 @@ export default {
     return {
       questionnaireVisible: false,
       programmingVisible: false,
+      currentGroupId: '',
+      currentExperId: '',
       currentQuestionId: -1,
       currentUpdatedQuestions: [],
       // 新增实验数据表
@@ -90,6 +93,7 @@ export default {
               phaseIndex: phase.number,
               phaseType: phase.phaseType === 0 ? '问卷' : '编程',
               groupName: group.groupName,
+              groupId: group.groupId,
               status: '未添加',
               // 数据由currentAddedQuestions添加
               questions: []
@@ -103,6 +107,8 @@ export default {
     },
     handleUpdateQuestion (index) {
       this.currentQuestionId = index
+      this.currentExperId = this.addExperimentForm.experId
+      this.currentGroupId = this.addExperimentTableData[index].groupId
       this.currentUpdatedQuestions = this.addExperimentTableData[index].questions
       if (this.addExperimentTableData[index].phaseType === '问卷') {
         this.questionnaireVisible = true
@@ -129,6 +135,23 @@ export default {
     },
     handleCloseQuestionnaireDialog () {
       this.questionnaireVisible = false
+    },
+    async handlerFinishAddProgrammingQuestions () {
+      const { data: res } = await this.$http.post('admin/addnonprogquestion', {
+        experId: this.addExperimentForm.experId,
+        groupName: this.addExperimentTableData[this.currentQuestionId].groupName,
+        phaseNumber: this.addExperimentTableData[this.currentQuestionId].phaseIndex,
+        addNonProgQuestionInfoList: this.currentUpdatedQuestions
+      })
+      if (res.status !== 201) {
+        return this.$message.error('问题添加失败')
+      }
+      this.$message.success('问题添加成功')
+      this.addExperimentTableData[this.currentQuestionId].questions = this.currentUpdatedQuestions
+      if (this.currentUpdatedQuestions.length > 0) {
+        this.addExperimentTableData[this.currentQuestionId].status = '已添加'
+      }
+      this.handleCloseQuestionnaireDialog()
     },
     handleCloseProgrammingDialog () {
       this.programmingVisible = false
