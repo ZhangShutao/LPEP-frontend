@@ -52,14 +52,17 @@
     </div>
     <!--新建实验1-基本信息-->
     <experiment-info-dialog :form="addExperimentForm"
+                            :reset-form="resetForm"
                             :visible="addExperimentDialogVisiable[0]"
                             @next-dialog="handleNextDialog"></experiment-info-dialog>
     <!--新建实验2-组别管理-->
     <group-dialog  :form="addExperimentForm"
+                   :reset-form="resetForm"
                    :visible="addExperimentDialogVisiable[1]"
                    @next-dialog="handleNextDialog"></group-dialog>
     <!--新建实验3-实验阶段管理-->
     <phase-dialog :form="addExperimentForm"
+                  :reset-form="resetForm"
                   :visible="addExperimentDialogVisiable[2]"
                   @create-experiment="handleCreateExperiment"
                   @next-dialog="handleNextDialog"></phase-dialog>
@@ -103,7 +106,6 @@ export default {
       addExperimentForm: {
         creatorId: '',
         experName: '',
-        startDate: '',
         startTime: '',
         workspace: '',
         groupInfoList: [
@@ -128,7 +130,8 @@ export default {
         false,
         false,
         false
-      ]
+      ],
+      resetForm: false
     }
   },
   created () {
@@ -169,10 +172,10 @@ export default {
         const { data: res } = await this.$http.get('admin/startexper', {
           params: { experId: experId }
         })
-        if (res.data === 1) {
+        if (res.status === 200) {
           this.$message.success('实验已开启')
         } else {
-          this.$message.error('实验开启失败')
+          this.$message.error('实验开启失败,' + res.msg)
         }
       }).finally(() => {
         this.getExperimentList()
@@ -186,10 +189,10 @@ export default {
         const { data: res } = await this.$http.get('admin/endexper', {
           params: { experId: experId }
         })
-        if (res.data === 1) {
+        if (res.status === 200) {
           this.$message.success('实验已结束')
         } else {
-          this.$message.error('实验结束失败')
+          this.$message.error('实验结束失败' + res.msg)
         }
       }).finally(() => {
         this.getExperimentList()
@@ -218,7 +221,7 @@ export default {
     async handleCreateExperiment () {
       const { data: res } = await this.$http.post('admin/createexper', this.addExperimentForm)
       if (res.status !== 201) {
-        return this.$message.error('实验创建失败')
+        return this.$message.error('实验创建失败,' + res.msg)
       }
       this.$message.success('实验创建成功')
       // 更新表单参数

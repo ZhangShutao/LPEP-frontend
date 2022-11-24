@@ -51,6 +51,16 @@ export default {
     },
     visible: {
       type: Boolean
+    },
+    resetForm: {
+      type: Boolean
+    }
+  },
+  watch: {
+    resetForm: {
+      handler () {
+        this.$refs.formRef.resetFields()
+      }
     }
   },
   methods: {

@@ -58,10 +58,21 @@ export default {
     },
     visible: {
       type: Boolean
+    },
+    resetForm: {
+      type: Boolean
+    }
+  },
+  watch: {
+    resetForm: {
+      handler () {
+        this.$refs.formRef.resetFields()
+      }
     }
   },
   methods: {
     beforeClose () {
+      this.$refs.textbookFormRef.resetFields()
       this.$emit('update:visible', false)
     },
     handleNextDialog (type) {

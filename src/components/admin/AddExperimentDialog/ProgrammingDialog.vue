@@ -16,22 +16,25 @@
       <el-form-item label="用时上限" label-width="120px" prop="timeLimit">
         <el-input v-model="question.timeLimit" style="width: 200px"></el-input>分钟
       </el-form-item>
-      <el-form-item label="运行时间上限" label-width="120px" prop="runningTimeLimit">
-        <el-input v-model="question.runningTimeLimit" style="width: 200px" placeholder="默认为5"></el-input>秒
+      <el-form-item label="运行时间上限" label-width="120px" prop="runtimeLimit">
+        <el-input v-model="question.runtimeLimit" style="width: 200px" placeholder="默认为5"></el-input>秒
       </el-form-item>
-      <el-form-item label="求解器" label-width="120px" prop="runner">
+      <el-form-item label="求解器" label-width="120px" prop="runnerId">
         <el-select v-model="question.runnerId" style="width: 200px">
           <el-option v-for="(solver, index) in allSolverTypes" :key="index" :label="solver.runnerName" :value="solver.runnerId"></el-option>
         </el-select>
       </el-form-item>
       测试数据
-      <div v-for="(sample, SampleIndex) in question.testSamples" :key="SampleIndex" class="input-output-upload">
-        数据{{ SampleIndex + 1 }}
-        <el-form-item label="输入" :prop="'testSamples.' + SampleIndex + '.inputFileList'" :rules="ProgrammingRules.input" >
+      <div v-for="(sample, sampleIndex) in question.testSamples" :key="sampleIndex" class="input-output-upload">
+        数据{{ sampleIndex + 1 }}
+        <el-button type="danger" @click="deleteTestSample(question, sampleIndex)" size="small" plain class="delete-button">删除本条数据</el-button>
+        <el-form-item label="输入" :prop="'testSamples.' + sampleIndex + '.inputFileList'" :rules="ProgrammingRules.input" >
           <el-upload
             :action="uploadParam.url"
             :data="uploadParam.data"
             :file-list="sample.inputFileList"
+            :on-remove="(file, fileList) => {
+              return handleRemove(file, fileList,sample,  'input') }"
             :before-upload="(file) => {
               return handleBeforeUpload(file, 'input'); }"
             :on-success="(response, file, fileList) => {
@@ -39,11 +42,13 @@
             <el-button size="small" type="primary">点击上传</el-button>
           </el-upload>
         </el-form-item>
-        <el-form-item label="输出" :prop="'testSamples.' + SampleIndex + '.outputFileList'" :rules="ProgrammingRules.output" >
+        <el-form-item label="输出" :prop="'testSamples.' + sampleIndex + '.outputFileList'" :rules="ProgrammingRules.output" >
           <el-upload
             :action="uploadParam.url"
             :data="uploadParam.data"
             :file-list="sample.outputFileList"
+            :on-remove="(file, fileList) => {
+              return handleRemove(file, fileList,sample,  'output') }"
             :before-upload="(file) => {
               return handleBeforeUpload(file, 'output'); }"
             :on-success=" (response, file, fileList) => {
@@ -51,7 +56,7 @@
             <el-button size="small" type="primary">点击上传</el-button>
           </el-upload>
         </el-form-item>
-        <el-button type="danger" @click="deleteTestSample(question, SampleIndex)" size="small" plain class="delete-button">删除本条数据</el-button>
+
       </div>
       <!--添加用例按钮-->
       <div class="function-box">
@@ -85,10 +90,10 @@ export default {
         timeLimit: [
           { required: true, message: '请输入用时上限', trigger: 'blur' }
         ],
-        // runner: [
-        //   { required: true, message: '请输入选择一个求解器', trigger: 'change' }
-        // ],
-        runningTimeLimit: [
+        runnerId: [
+          { required: true, message: '请输入选择一个求解器', trigger: 'change' }
+        ],
+        runtimeLimit: [
           { required: true, message: '请输入运行时间上限', trigger: 'blur' }
         ],
         input: [
@@ -159,10 +164,12 @@ export default {
         if (valid) {
           fun()
         } else {
-          this.$message.warning('存在必选项未填，请仔细查看')
           return false
         }
       })
+    },
+    validateFormField (index, field) {
+      this.$refs['programmingRef' + index][0].validateField(field)
     },
     validateAllForm (index, count, fun) {
       if (index === count) {
@@ -181,10 +188,11 @@ export default {
     addQuestionList () {
       this.questionList.push(
         {
+          questionNumber: this.questionList.length + 1,
           content: '',
-          timeLimit: '',
           runnerId: '',
-          runningTimeLimit: '',
+          timeLimit: '',
+          runtimeLimit: '',
           testSamples: []
         }
       )
@@ -199,9 +207,7 @@ export default {
     addTestSample (index, question) {
       this.validateForm(index, async () => {
         // 先获取caseId
-        const { data: res } = await this.$http.get('exper/getcaseid', {
-          params: { number: question.testSamples.length + 1 }
-        })
+        const { data: res } = await this.$http.get('exper/getcaseid')
         if (res.status !== 200) {
           return this.$message.success('获取caseId失败')
         }
@@ -237,14 +243,26 @@ export default {
         return false
       }
     },
+    handleRemove (file, fileList, sample, type) {
+      if (type === 'input') {
+        sample.inputFileList = fileList
+      } else {
+        sample.outputFileList = fileList
+      }
+    },
     handleSuccess (response, file, fileList, sample, questionIndex, type) {
       if (response.status !== 203) {
+        if (type === 'input') {
+          sample.inputFileList.splice(-1, 1)
+        } else {
+          sample.outputFileList.splice(-1, 1)
+        }
         return this.$message.error('上传文件出错')
       }
       if (type === 'input') {
-        sample.inputFileList.push({ name: file.name })
+        sample.inputFileList = fileList
       } else {
-        sample.outputFileList.push({ name: file.name })
+        sample.outputFileList = fileList
       }
       this.$message.success('上传文件成功')
       this.validateForm(questionIndex, () => {})
@@ -260,7 +278,7 @@ export default {
           // delete question.testSamples
           question.caseIds = caseIds
         })
-        this.loading = true
+        this.loading = false
         this.$emit('finish-add-questions', () => {
           this.loading = false
         })
@@ -279,15 +297,13 @@ export default {
 }
 .input-output-upload {
   padding: 10px;
-  display: flex;
+  //display: flex;
   .el-form-item {
-    display: inline-block;
-    width: 180px;
+    //display: inline-block;
+    width: 400px;
   }
   .delete-button {
-    height: 32px;
     margin-left: 20px;
-    margin-top: 4px;
   }
 }
 </style>

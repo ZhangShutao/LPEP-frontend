@@ -54,8 +54,16 @@ export default {
       this.addUserToExperimentForm.name = name
     },
     // 添加参试人员
-    handleAddUserToExperiment () {
-      // TODO后端请求（用户添加到组）
+    async handleAddUserToExperiment () {
+      const { data: res } = await this.$http.post('admin/addtestertoexper', {
+        userId: this.userId,
+        experId: item.experId,
+        groupId: item.groupId
+      })
+      if (res.status !== 200) {
+        return this.$message.error('添加失败')
+      }
+      this.$message.success('添加成功')
     }
   }
 }

@@ -10,10 +10,10 @@
       :data="participateTableData"
       stripe
       border>
-      <el-table-column label="序号" prop="id"></el-table-column>
-      <el-table-column label="学号/工号" prop="studentId"></el-table-column>
-      <el-table-column label="姓名" prop="name"></el-table-column>
-      <el-table-column label="组别" prop="group"></el-table-column>
+      <el-table-column type="index" width="70"></el-table-column>
+      <el-table-column label="学号" prop="username"></el-table-column>
+      <el-table-column label="姓名" prop="realname"></el-table-column>
+      <el-table-column label="当前实验所属组别" prop="group"></el-table-column>
       <el-table-column label="操作" align="center">
         <template slot-scope="scope">
           <el-button size="mini" type="danger" @click="handleDeleteUser(scope.row)">删除</el-button>
@@ -45,16 +45,14 @@ export default {
   },
   data () {
     return {
+      userQueryPageTotal: 0,
+      userQueryInfo: {
+        pageIndex: 1,
+        pageSize: 10
+      },
+      participantsTableData: [],
       addUserToExperimentVisible: false,
-      userAddVisible: false,
-      participateTableData: [
-        {
-          id: 1,
-          studentId: '11xxxx',
-          name: '张三',
-          group: 'ASP'
-        }
-      ]
+      userAddVisible: false
     }
   },
   props: {
@@ -71,17 +69,29 @@ export default {
       this.$emit('next-dialog', type)
     },
     // 获取所有参试人员
-    getAllParticipates () {
-      // TODO(后端请求 participateTableData)
+    async getAllParticipates () {
+      const { data: res } = await this.$http.get('admin/listalltester', {
+        params: this.userQueryInfo
+      })
+      this.userQueryPageTotal = res.data.recordCount
+      this.participantsTableData = res.data.testerInfoList
     },
-    handleDeleteUser (userInfo) {
+    // 用户删除
+    handleDeleteUser (userId) {
       this.$confirm('确定要删除该用户吗？', '提示', {
         type: 'warning'
-      }).then(() => {
-        // TODO （后端请求）
-        this.$message.success('用户已删除')
+      }).then(async () => {
+        const { data: res } = await this.$http.get('admin/deletetester', {
+          params: { userId: userId }
+        })
+        if (res.status === 204) {
+          this.$message.success('用户已删除')
+        } else {
+          this.$message.error(res.msg)
+        }
+      }).finally(() => {
+        this.getAllParticipates()
       })
-        .catch(() => {})
     }
   }
 }

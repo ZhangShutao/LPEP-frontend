@@ -3,11 +3,7 @@
     <container-header title="自学培训教材管理"></container-header>
     <!--新增教材按钮-->
     <div class="function-box">
-      <el-button
-        type="warning"
-        @click="textbookFormVisible = true"
-      >新增教材
-      </el-button>
+      <el-button type="warning" @click="textbookFormVisible = true">新增教材</el-button>
     </div>
     <!--教材列表-->
     <el-table
