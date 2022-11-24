@@ -70,7 +70,6 @@ export default {
           if (!value) {
             return false
           }
-          console.log('校验成功')
           this.$emit('next-dialog', type)
         })
       } else {

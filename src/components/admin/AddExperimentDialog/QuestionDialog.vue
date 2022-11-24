@@ -119,7 +119,7 @@ export default {
     async handlerFinishAddQuestionnaireQuestions () {
       const { data: res } = await this.$http.post('admin/addnonprogquestion', {
         experId: this.addExperimentForm.experId,
-        groupName: this.addExperimentTableData[this.currentQuestionId].groupName,
+        groupId: this.addExperimentTableData[this.currentQuestionId].groupId,
         phaseNumber: this.addExperimentTableData[this.currentQuestionId].phaseIndex,
         addNonProgQuestionInfoList: this.currentUpdatedQuestions
       })
@@ -136,13 +136,14 @@ export default {
     handleCloseQuestionnaireDialog () {
       this.questionnaireVisible = false
     },
-    async handlerFinishAddProgrammingQuestions () {
-      const { data: res } = await this.$http.post('admin/addnonprogquestion', {
+    async handlerFinishAddProgrammingQuestions (callback) {
+      const { data: res } = await this.$http.post('admin/addprogquestion', {
         experId: this.addExperimentForm.experId,
-        groupName: this.addExperimentTableData[this.currentQuestionId].groupName,
+        groupId: this.addExperimentTableData[this.currentQuestionId].groupId,
         phaseNumber: this.addExperimentTableData[this.currentQuestionId].phaseIndex,
-        addNonProgQuestionInfoList: this.currentUpdatedQuestions
+        addProgQuestionInfoList: this.currentUpdatedQuestions
       })
+      callback()
       if (res.status !== 201) {
         return this.$message.error('问题添加失败')
       }
@@ -151,7 +152,7 @@ export default {
       if (this.currentUpdatedQuestions.length > 0) {
         this.addExperimentTableData[this.currentQuestionId].status = '已添加'
       }
-      this.handleCloseQuestionnaireDialog()
+      this.handleCloseProgrammingDialog()
     },
     handleCloseProgrammingDialog () {
       this.programmingVisible = false

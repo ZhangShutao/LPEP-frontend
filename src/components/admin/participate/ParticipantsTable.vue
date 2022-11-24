@@ -22,13 +22,13 @@
         <template slot-scope="scope">
           <el-button
             size="mini"
-            type="danger"
-            @click="handleDelete(scope.row.userId)">删除用户
+            type="primary"
+            @click="handleAddUserToExperiment(scope.row.userId)">添加到实验
           </el-button>
           <el-button
             size="mini"
-            type="primary"
-            @click="handleAddUserToExperiment(scope.row.userId)">添加到实验
+            type="danger"
+            @click="handleDelete(scope.row.userId)">删除用户
           </el-button>
         </template>
       </el-table-column>

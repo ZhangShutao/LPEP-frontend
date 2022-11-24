@@ -89,23 +89,27 @@ export default {
     },
     // 用户参加实验
     async participateExperiment (experiment) {
-      // 获取实验类型
-      const { data: res } = await this.$http.post('exper/getnextphasestatus', {
-        userId: this.queryInfo.userId,
-        experId: experiment.experId,
-        phaseNumber: 1
+      this.$confirm('确定要参与实验吗？', '提示', {
+        type: 'warning'
+      }).then(async () => {
+        // 获取实验类型
+        const { data: res } = await this.$http.post('exper/getnextphasestatus', {
+          userId: this.queryInfo.userId,
+          experId: experiment.experId,
+          phaseNumber: 1
+        })
+        const isProg = res.data.isProg
+        this.userInfo.phaseNumber = 1
+        this.userInfo.experId = experiment.experId
+        this.userInfo.experName = experiment.title
+        sessionStorage.setItem('userInfo', JSON.stringify(this.userInfo))
+        // 跳转做题页面
+        if (isProg === 0) {
+          this.$router.push('/exam/questionnaire')
+        } else {
+          this.$router.push('/exam/programming')
+        }
       })
-      const isProg = res.data.isProg
-      this.userInfo.phaseNumber = 1
-      this.userInfo.experId = experiment.experId
-      this.userInfo.experName = experiment.title
-      sessionStorage.setItem('userInfo', JSON.stringify(this.userInfo))
-      // 跳转做题页面
-      if (isProg === 0) {
-        this.$router.push('/exam/questionnaire')
-      } else {
-        this.$router.push('/exam/programming')
-      }
     }
   }
 }
