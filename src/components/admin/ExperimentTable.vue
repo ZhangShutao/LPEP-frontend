@@ -37,6 +37,11 @@
             @click="handleAnalysis(scope.row.experId)"
             :disabled="scope.row.state !== 1">分析
           </el-button>
+          <!--<el-button-->
+          <!--  size="mini"-->
+          <!--  type="info"-->
+          <!--  @click="handleAddUserToExperiment(scope.row.experId)">添加用户到实验-->
+          <!--</el-button>-->
         </template>
       </el-table-column>
     </el-table>
@@ -50,30 +55,41 @@
         @current-change="handlePageChange">
       </el-pagination>
     </div>
-    <!--新建实验1-基本信息-->
+    <!--基本信息-->
     <experiment-info-dialog :form="addExperimentForm"
                             :reset-form="resetForm"
                             :visible="addExperimentDialogVisiable[0]"
-                            @next-dialog="handleNextDialog"></experiment-info-dialog>
-    <!--新建实验2-组别管理-->
+                            @next-dialog="handleNextDialog">
+    </experiment-info-dialog>
+    <!--组别管理-->
     <group-dialog  :form="addExperimentForm"
                    :reset-form="resetForm"
                    :visible="addExperimentDialogVisiable[1]"
-                   @next-dialog="handleNextDialog"></group-dialog>
-    <!--新建实验3-实验阶段管理-->
+                   @next-dialog="handleNextDialog">
+    </group-dialog>
+    <!--阶段管理-->
     <phase-dialog :form="addExperimentForm"
                   :reset-form="resetForm"
                   :visible="addExperimentDialogVisiable[2]"
                   @create-experiment="handleCreateExperiment"
-                  @next-dialog="handleNextDialog"></phase-dialog>
-    <!--新建实验4-问题管理-->
+                  @next-dialog="handleNextDialog">
+    </phase-dialog>
+    <!--问题管理-->
     <question-dialog :addExperimentForm="addExperimentForm"
                      :visible="addExperimentDialogVisiable[3]"
-                     @next-dialog="handleNextDialog"></question-dialog>
-    <!--新建实验7-参试人员管理-->
+                     @next-dialog="handleNextDialog">
+    </question-dialog>
+    <!--参试人员管理-->
     <user-dialog :form="addExperimentForm"
                  :visible="addExperimentDialogVisiable[4]"
-                 @next-dialog="handleNextDialog"></user-dialog>
+                 @next-dialog="handleNextDialog">
+    </user-dialog>
+    <!--用户添加到实验-->
+    <!--<user-participate-dialog-->
+    <!--            :visible="addExperimentDialogVisiable[5]"-->
+    <!--            :exper-id="currentExperId"-->
+    <!--            @close-dialog="handleCloseDialog(5)">-->
+    <!--</user-participate-dialog>-->
   </div>
 </template>
 
@@ -84,6 +100,7 @@ import GroupDialog from './AddExperimentDialog/GroupDialog'
 import PhaseDialog from './AddExperimentDialog/PhaseDialog'
 import QuestionDialog from './AddExperimentDialog/QuestionDialog'
 import UserDialog from './AddExperimentDialog/UserDialog'
+// import UserParticipateDialog from './AddExperimentDialog/UserParticipateDialog'
 export default {
   name: 'ExperimentTable',
   components: {
@@ -93,6 +110,7 @@ export default {
     PhaseDialog,
     QuestionDialog,
     UserDialog
+    // UserParticipateDialog
   },
   data () {
     return {
@@ -130,7 +148,9 @@ export default {
         false,
         false,
         false
+        // false
       ],
+      currentExperId: '',
       resetForm: false
     }
   },
@@ -201,19 +221,31 @@ export default {
     // 触发分析实验按钮
     handleAnalysis (experId) {
     },
+    handleAddUserToExperiment (experId) {
+      this.resetForm = true
+      this.$set(this.addExperimentDialogVisiable, 5, true)
+      this.currentExperId = experId
+    },
+    handleCloseDialog (index) {
+      this.$set(this.addExperimentDialogVisiable, index, false)
+    },
     // 控制对话框弹出
     handleNextDialog (type) {
-      this.$set(this.addExperimentDialogVisiable, this.visiableDialogIndex, false)
+      this.handleCloseDialog(this.visiableDialogIndex)
       if (type !== 0) {
         const nextIndex = this.visiableDialogIndex + type
         if (nextIndex < this.addExperimentDialogVisiable.length && nextIndex >= 0) {
           this.$set(this.addExperimentDialogVisiable, nextIndex, true)
           this.visiableDialogIndex = nextIndex
         }
+      } else {
+        // 重置表单
+        this.resetForm = true
       }
     },
     // 开启新增实验处理流程
     addExperiment () {
+      this.resetForm = false
       this.visiableDialogIndex = 0
       this.$set(this.addExperimentDialogVisiable, 0, true)
     },
@@ -227,12 +259,12 @@ export default {
       // 更新表单参数
       this.addExperimentForm.experId = res.data.experId
       this.addExperimentForm.status = res.data.status
+      // 添加groupId
       res.data.groups.forEach((item, index) => {
         if (this.addExperimentForm.groupInfoList[index].groupName === item.groupName) {
           this.addExperimentForm.groupInfoList[index].groupId = item.groupId
         }
       })
-      this.getExperimentList()
       this.handleNextDialog(1)
     }
   }

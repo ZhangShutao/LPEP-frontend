@@ -41,7 +41,8 @@ import {
   DatePicker,
   Upload,
   Checkbox,
-  CheckboxGroup
+  CheckboxGroup,
+  Statistic
 } from 'element-ui'
 import mavonEditor from 'mavon-editor'
 
@@ -78,14 +79,15 @@ Vue.use(Divider)
 Vue.use(Link)
 Vue.use(Tabs)
 Vue.use(TabPane)
-Vue.use(Loading)
 Vue.use(TimePicker)
 Vue.use(DatePicker)
 Vue.use(mavonEditor)
 Vue.use(Upload)
 Vue.use(Checkbox)
 Vue.use(CheckboxGroup)
+Vue.use(Statistic)
 // 全局挂载
+Vue.prototype.$loading = Loading.service
 Vue.prototype.$message = Message
 Vue.prototype.$confirm = MessageBox.confirm
 Vue.prototype.$alert = MessageBox.alert

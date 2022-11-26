@@ -1,6 +1,8 @@
 <template>
   <!--新建实验6-问题录入（编程题）-->
-  <el-dialog title="问题录入" :visible.sync="visible" width="80%" v-if="visible" append-to-body :show-close="false">
+  <el-dialog title="问题录入" :visible.sync="visible" width="80%" v-if="visible" append-to-body
+             :show-close="false"
+             :before-close="beforeClose">
     <!--每个问题对应一个表单-->
     <el-form label-width="80px"
              :rules="ProgrammingRules" :ref="'programmingRef' + questionIndex"
@@ -147,6 +149,9 @@ export default {
     this.getAllSolverTypes()
   },
   methods: {
+    beforeClose () {
+      this.$emit('update:visible', false)
+    },
     // 获取所有求解器
     async getAllSolverTypes () {
       const { data: res } = await this.$http.get('exper/listallrunner')
@@ -167,9 +172,6 @@ export default {
           return false
         }
       })
-    },
-    validateFormField (index, field) {
-      this.$refs['programmingRef' + index][0].validateField(field)
     },
     validateAllForm (index, count, fun) {
       if (index === count) {
@@ -227,10 +229,7 @@ export default {
         question.testSamples.splice(index, 1)
       })
     },
-    // 预览上传文件
-    handlePreview (file) {
-      console.log(file)
-    },
+    // 文件上传前处理
     handleBeforeUpload (file, type) {
       if (type === 'input') {
         this.uploadParam.data.isInput = 1
@@ -269,7 +268,7 @@ export default {
     },
     // 完成编程题目创建过程
     finishAddQuestions () {
-      this.validateAllForm(0, this.questionList.length, () => {
+      this.validateAllForm(0, this.questionList.length, async () => {
         this.questionList.forEach((question) => {
           const caseIds = []
           question.testSamples.forEach((item) => {
@@ -279,9 +278,8 @@ export default {
           question.caseIds = caseIds
         })
         this.loading = false
-        this.$emit('finish-add-questions', () => {
-          this.loading = false
-        })
+        await this.$emit('finish-add-questions')
+        this.loading = false
       })
     }
   }

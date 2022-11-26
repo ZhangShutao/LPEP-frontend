@@ -81,7 +81,6 @@ export default {
     beforeClose () {
       this.$emit('update:visible', false)
     },
-    // TODO 成新建实验表中的数据(仅限开发使用)
     generateAddExperimentTableData () {
       this.addExperimentTableData = []
       this.addExperimentForm.phaseInfoList.forEach((phase, index) => {
@@ -123,7 +122,7 @@ export default {
         addNonProgQuestionInfoList: this.currentUpdatedQuestions
       })
       if (res.status !== 201) {
-        return this.$message.error('问题添加失败')
+        return this.$message.error('问题添加失败，' + res.msg)
       }
       this.$message.success('问题添加成功')
       this.addExperimentTableData[this.currentQuestionId].questions = this.currentUpdatedQuestions
@@ -135,14 +134,13 @@ export default {
     handleCloseQuestionnaireDialog () {
       this.questionnaireVisible = false
     },
-    async handlerFinishAddProgrammingQuestions (callback) {
+    async handlerFinishAddProgrammingQuestions () {
       const { data: res } = await this.$http.post('admin/addprogquestion', {
         experId: this.addExperimentForm.experId,
         groupId: this.addExperimentTableData[this.currentQuestionId].groupId,
         phaseNumber: this.addExperimentTableData[this.currentQuestionId].phaseIndex,
         addProgQuestionInfoList: this.currentUpdatedQuestions
       })
-      callback()
       if (res.status !== 201) {
         return this.$message.error('问题添加失败')
       }

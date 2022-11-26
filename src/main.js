@@ -9,6 +9,7 @@ import './assets/css/global.css'
 // 导入mavonEditor样式表
 import 'mavon-editor/dist/css/index.css'
 
+import './assets/theme/blue-dark/index.css'
 import axios from 'axios'
 import { baseUrl } from './vue.config.js'
 

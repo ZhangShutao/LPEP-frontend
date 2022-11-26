@@ -15,7 +15,7 @@
           <el-input v-model="item.groupName"></el-input>
         </el-form-item>
         <!--<el-form-item label="求解器">-->
-        <!--  <el-select v-model="item.solver">-->
+        <!--  <el-s elect v-model="item.solver">-->
         <!--    <el-option v-for="(solver, index) in allSolverTypes" :key="index" :label="solver" :value="solver"></el-option>-->
         <!--  </el-select>-->
         <!--</el-form-item>-->
@@ -23,7 +23,6 @@
     </el-form>
     <div class="function-box">
       <el-button type="primary" @click="addGroup" size="small" plain>添加组别</el-button>
-
     </div>
     <div slot="footer">
       <el-button type="primary" @click="handleNextDialog(-1)">上一步</el-button>

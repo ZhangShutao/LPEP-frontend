@@ -1,21 +1,21 @@
 <template>
   <div>
     测验结束，感谢您的参与
-    <el-checkbox-group v-model="checkList">
-      <el-checkbox label="复选框 A">
-        <el-input></el-input>
-      </el-checkbox>
-      <el-checkbox label="复选框 A">
-        <el-input></el-input>
-      </el-checkbox>
-      <el-checkbox label="复选框 A">
-        <el-input></el-input>
-      </el-checkbox>
-      <el-checkbox label="复选框 B"></el-checkbox>
-      <el-checkbox label="复选框 C"></el-checkbox>
-      <el-checkbox label="禁用" disabled></el-checkbox>
-      <el-checkbox label="选中且禁用" disabled></el-checkbox>
-    </el-checkbox-group>
+    <mavon-editor v-model="content" font-size=""
+                  :subfield="false"
+                  defaultOpen="preview"
+                  :toolbarsFlag="false"
+                  :editable="false"
+                  :scrollStyle="true">
+
+    </mavon-editor>
+    <div>
+      <el-statistic :value="deadline2"  time-indices title="商品降价" @finish="hilarity">
+        <template slot="suffix">
+          抢购即将开始
+        </template>
+      </el-statistic>
+    </div>>
   </div>
 </template>
 
@@ -24,7 +24,17 @@ export default {
   name: 'EndExam',
   data () {
     return {
-      checkList: ['选中且禁用', '复选框 A']
+      deadline2: Date.now() + 1000 * 5,
+      content: '12'
+    }
+  },
+  methods: {
+    hilarity () {
+      this.$notify({
+        title: '提示',
+        message: '时间已到，你可知寸金难买寸光阴？',
+        duration: 0
+      })
     }
   }
 }
