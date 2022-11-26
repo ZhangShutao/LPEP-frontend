@@ -17,6 +17,7 @@
           <el-button
             size="mini"
             type="danger"
+            :disabled="scope.row.state === 0"
             @click="participateExperiment(scope.row)">参加实验
           </el-button>
         </template>
@@ -66,6 +67,7 @@ export default {
       this.userInfo = JSON.parse(sessionStorage.getItem('userInfo'))
       this.queryInfo.userId = this.userInfo.id
     },
+
     async getExperimentList () {
       const { data: res } = await this.$http.get('user/experstopart', {
         params: { userId: this.queryInfo.userId }
@@ -76,10 +78,12 @@ export default {
       this.tableData = res.data
       this.pageTotal = res.data.recordCount
     },
+
     handlePageChange (newPage) {
       this.queryInfo.pageIndex = newPage
       this.getExperimentList()
     },
+
     // 状态转换
     changeStatus (row, column) {
       const value = row[column.property]
@@ -87,19 +91,22 @@ export default {
       else if (value === 1) return '正常'
       else return '实验中断'
     },
+
     // 用户参加实验
     async participateExperiment (experiment) {
       this.$confirm('确定要参与实验吗？', '提示', {
         type: 'warning'
       }).then(async () => {
+        // 更新阶段信息
+        this.userInfo.phaseNumber = experiment.state === 2 ? experiment.currentPhaseNumber : 1
+        this.userInfo.questionNumber = experiment.state === 2 ? experiment.currentQuestionNumber : 1
         // 获取实验类型
         const { data: res } = await this.$http.post('exper/getnextphasestatus', {
           userId: this.queryInfo.userId,
           experId: experiment.experId,
-          phaseNumber: 1
+          phaseNumber: this.userInfo.phaseNumber
         })
         const isProg = res.data.isProg
-        this.userInfo.phaseNumber = 1
         this.userInfo.experId = experiment.experId
         this.userInfo.experName = experiment.title
         sessionStorage.setItem('userInfo', JSON.stringify(this.userInfo))

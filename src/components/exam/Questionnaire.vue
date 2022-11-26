@@ -63,6 +63,7 @@ export default {
       this.experName = this.userInfo.experName
       this.phaseName = this.userInfo.phaseNumber
     },
+
     // 获取问题列表
     async getQuestionList () {
       const { data: res } = await this.$http.post('exper/getnonprogquestion', {
@@ -72,6 +73,7 @@ export default {
       })
       this.questionList = res.data
     },
+
     validateAllForm (index, count, fun) {
       if (index === count) {
         fun()
@@ -86,6 +88,7 @@ export default {
         }
       })
     },
+
     // 提交答案
     async handleSubmit () {
       // 生成答案
@@ -100,6 +103,8 @@ export default {
         this.loading = true
         const { data: res } = await this.$http.post('exper/nonprogsubmit', {
           userId: this.userInfo.id,
+          experId: this.userInfo.experId,
+          phaseNumber: this.userInfo.phaseNumber,
           answers: answers
         })
         this.loading = false
@@ -109,6 +114,7 @@ export default {
         this.gotoNextPhase()
       })
     },
+
     async gotoNextPhase () {
       // 更新阶段
       this.userInfo.phaseNumber = this.userInfo.phaseNumber + 1

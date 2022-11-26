@@ -14,10 +14,9 @@ import ParticipantsTable from '../components/admin/participate/ParticipantsTable
 import TextbookManagement from '../components/admin/textbook/TextbookManagement'
 import Questionaire from '../components/exam/Questionnaire'
 import Programming from '../components/exam/Programming'
-import TimeCount from '../components/common/TimeCount'
 import Exam from '../components/exam/Exam'
 import EndExam from '../components/exam/EndExam'
-
+import EmptyPhase from '../components/exam/EmptyPhase'
 Vue.use(VueRouter)
 
 const routes = [
@@ -57,7 +56,7 @@ const routes = [
       // 程序阅读路由
       { path: 'questionnaire', component: Questionaire },
       { path: 'programming', component: Programming },
-      { path: 'timer', component: TimeCount },
+      { path: 'empty-phase', component: EmptyPhase },
       { path: 'exam-end', component: EndExam }
     ]
   }
