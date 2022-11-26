@@ -36,7 +36,7 @@ export default {
           { required: true, message: '请输入实验名', trigger: 'blur' }
         ],
         startTime: [
-          { required: true, message: '请选择时间', trigger: 'change' }
+          { required: true, message: '请选择时间' }
         ],
         workspace: [
           { required: true, message: '请输入共组目录', trigger: 'blur' }
@@ -72,7 +72,6 @@ export default {
   },
   methods: {
     beforeClose () {
-      this.$refs.textbookFormRef.resetFields()
       this.$emit('update:visible', false)
     },
     handleNextDialog (type) {

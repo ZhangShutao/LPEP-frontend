@@ -4,12 +4,12 @@
              :show-close="false"
              :before-close="beforeClose">
     <!--每个问题对应一个表单-->
-    <el-form label-width="80px"  :rules="questionnaireRules" ref="questionnaireRef"
+    <el-form label-width="80px" :rules="questionnaireRules" :ref="'questionnaireRef' + questionIndex"
              :model="question"
-             v-for="(question, index) in questionList" :key="index">
+             v-for="(question, questionIndex) in questionList" :key="questionIndex">
       <div class="question-title">
-        问题{{index+1}}
-        <el-button type="danger" @click="handleDeleteQuestion(index)" size="small">删除问题</el-button>
+        问题{{ questionIndex + 1 }}
+        <el-button type="danger" @click="handleDeleteQuestion(questionIndex)" size="small">删除问题</el-button>
       </div>
       <el-form-item label="问题类型" prop="type">
         <el-radio v-model="question.type" :label="1">选择题</el-radio>
@@ -45,7 +45,7 @@
     </div>
     <div slot="footer">
       <el-button type="primary"
-                 @click="finishAddQuestions">确 定</el-button>
+                 @click="finishAddQuestions" :loading="loading">全部添加</el-button>
       <el-button @click="closeDialog">取 消</el-button>
     </div>
   </el-dialog>
@@ -71,7 +71,8 @@ export default {
         answer: [
           { required: true, message: '请至少选择一个答案', trigger: 'change' }
         ]
-      }
+      },
+      loading: false
     }
   },
   props: {
@@ -87,35 +88,49 @@ export default {
     closeDialog () {
       this.$emit('close-dialog')
     },
-    validateForm (fun) {
-      // 表单校验
-      if (this.questionList.length === 0) {
+    // 校验第index个表单
+    validateForm (index, fun) {
+      this.$refs['questionnaireRef' + index][0].validate((valid) => {
+        if (valid) {
+          fun()
+        } else {
+          return false
+        }
+      })
+    },
+    validateAllForm (index, count, fun) {
+      if (index === count) {
         fun()
-      } else {
-        this.$refs.questionnaireRef[0].validate((valid) => {
-          if (valid) {
-            fun()
-          } else {
-            return false
-          }
-        })
+        return
       }
+      this.$refs['questionnaireRef' + index][0].validate((valid) => {
+        if (valid) {
+          this.validateAllForm(index + 1, count, fun)
+        } else {
+          this.$message.warning('存在必选项未填，请仔细查看')
+          return false
+        }
+      })
     },
     handleDeleteQuestion (index) {
       this.questionList.splice(index, 1)
     },
+    addQuestionList () {
+      this.questionList.push(
+        {
+          number: this.questionList.length + 1,
+          type: '',
+          content: '',
+          options: [],
+          answer: ''
+        }
+      )
+    },
     addQuestion () {
-      this.validateForm(() => {
-        this.questionList.push(
-          {
-            number: this.questionList.length + 1,
-            type: '',
-            content: '',
-            options: [],
-            answer: ''
-          }
-        )
-      })
+      if (this.questionList.length === 0) {
+        return this.addQuestionList()
+      }
+      this.validateForm(this.questionList.length - 1, this.addQuestionList)
     },
     addOption (question) {
       question.options.push('')
@@ -124,7 +139,11 @@ export default {
       question.options.splice(optionIndex, 1)
     },
     finishAddQuestions () {
-      this.validateForm(() => { this.$emit('finish-add-questions') })
+      this.validateAllForm(0, this.questionList.length, async () => {
+        this.loading = true
+        await this.$emit('finish-add-questions')
+        this.loading = false
+      })
     }
   }
 }

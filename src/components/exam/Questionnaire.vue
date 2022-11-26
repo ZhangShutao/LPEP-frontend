@@ -3,29 +3,29 @@
   <div class="container">
     <container-header :title="experName" :sub-title="'阶段' + phaseName"></container-header>
     <!--表单绑定做题结果-->
-    <el-form :model="questionnaireForm" label-width="80px" label-position="top" ref="questionnaireFormRef">
-      <div v-for="(question, index) in questionList" :key="index">
-        <!--选择题-->
-        <el-form-item :label="index + 1 + '. ' + question.content" v-if="question.type === 1">
-          <!--选项-->
-          <el-radio-group v-model="question.reply">
-            <div v-for="(option, index) in question.options" :key="index">
-              <el-radio :label="String.fromCharCode('A'.charCodeAt(0)+ index)" border >
-                {{ option }}</el-radio>
-            </div>
-          </el-radio-group>
-        </el-form-item>
-        <!--问答题-->
-        <el-form-item :label="index + 1 + '. ' + question.content" v-else-if="question.type === 2">
-          <!--答题区域-->
-          <el-input type="textarea" v-model="question.reply" placeholder="请在此作答"></el-input>
-        </el-form-item>
-      </div>
-      <!--提交所有结果-->
-      <el-form-item class="button-box">
-        <el-button type="primary" @click="handleSubmit">提交</el-button>
+    <el-form label-width="80px" label-position="top"
+             :model="question" :ref="'questionnaireFormRef' + questionIndex" :rules="questionnaireFormRules"
+             v-for="(question, questionIndex) in questionList" :key="questionIndex">
+      <!--选择题-->
+      <el-form-item :label="questionIndex + 1 + '. ' + question.content" v-if="question.type === 1"
+                    prop="reply">
+        <el-radio-group v-model="question.reply">
+          <div v-for="(option, index) in question.options" :key="index">
+            <el-radio :label="String.fromCharCode('A'.charCodeAt(0)+ index)" border >
+              {{ option }}</el-radio>
+          </div>
+        </el-radio-group>
+      </el-form-item>
+      <!--问答题-->
+      <el-form-item :label="questionIndex + 1 + '. ' + question.content" v-else-if="question.type === 2"
+                    prop="reply">
+        <el-input type="textarea" v-model="question.reply" placeholder="请在此作答"></el-input>
       </el-form-item>
     </el-form>
+    <!--提交所有结果-->
+    <div class="button-box">
+      <el-button type="primary" @click="handleSubmit" :loading="loading">提交</el-button>
+    </div>
   </div>
 </template>
 
@@ -43,7 +43,13 @@ export default {
       // 程序阅读题目列表
       questionList: [],
       experName: '',
-      phaseName: 0
+      phaseName: 0,
+      questionnaireFormRules: {
+        reply: [
+          { required: true, message: '请填写答案', trigger: 'change' }
+        ]
+      },
+      loading: false
     }
   },
   created () {
@@ -66,6 +72,20 @@ export default {
       })
       this.questionList = res.data
     },
+    validateAllForm (index, count, fun) {
+      if (index === count) {
+        fun()
+        return
+      }
+      this.$refs['questionnaireFormRef' + index][0].validate((valid) => {
+        if (valid) {
+          this.validateAllForm(index + 1, count, fun)
+        } else {
+          this.$message.warning('存在必选项未填，请仔细查看')
+          return false
+        }
+      })
+    },
     // 提交答案
     async handleSubmit () {
       // 生成答案
@@ -76,18 +96,17 @@ export default {
           reply: question.reply
         })
       })
-      const { data: res } = await this.$http.post('exper/nonprogsubmit', {
-        userId: this.userInfo.id,
-        answers: answers
-      })
-      if (res.status !== 205) {
-        return this.$message.error('提交答案出错')
-      }
-      this.$confirm('提交成功,是否开始下一阶段?', '提示', {
-        type: 'success '
-      }).then(() => {
-        // TODO （后端请求）
-
+      this.validateAllForm(0, this.questionList.length, async () => {
+        this.loading = true
+        const { data: res } = await this.$http.post('exper/nonprogsubmit', {
+          userId: this.userInfo.id,
+          answers: answers
+        })
+        this.loading = false
+        if (res.status !== 205) {
+          return this.$message.error('提交答案出错')
+        }
+        this.gotoNextPhase()
       })
     },
     async gotoNextPhase () {
@@ -99,7 +118,7 @@ export default {
       const { data: res } = await this.$http.post('exper/getnextphasestatus', {
         userId: this.userInfo.id,
         experId: this.userInfo.experId,
-        phaseNumber: this.userInfo.phase
+        phaseNumber: this.userInfo.phaseNumber
       })
       if (res.data.isEnd === 1) {
         return this.$router.push('/exam/exam-end')

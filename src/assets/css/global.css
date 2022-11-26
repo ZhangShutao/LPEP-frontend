@@ -8,7 +8,7 @@ html, body, #app {
 
 /*页面顶部区域*/
 .el-header{
-    padding: 0;
+    padding: 0 !important;
 }
 
 /*侧边栏右侧展示区域*/
@@ -44,10 +44,6 @@ html, body, #app {
     /*left: 33%;*/
     position: fixed;
     width: 400px;
-}
-
-.el-button {
-    /*margin-top: 10px;*/
 }
 
 .el-form-item .el-select {

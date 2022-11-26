@@ -1,48 +1,26 @@
 <template>
   <div class="container">
-    <container-header title="实验名" sub-title="阶段名"></container-header>
-    <!--程序编写页面-->
-    <el-row >
+    <container-header :title="experName" :sub-title="'阶段' +phaseName"></container-header>
+      <!--程序编写页面-->
+      <el-row>
       <!--题干区域-->
       <el-col :span="10">
         <el-card class="question-box">
           <div slot="header" class="clearfix">
-            <span>编程题标题</span>
-            <span>
-              剩余时间: <time-count :long-time="remainingTime"
-                          message-title="计时结束"
-                          message-text="计时结束"
-                          @count-end = handleCountEnd></time-count>
-            </span>
-            <!--<el-button type="primary">提交记录</el-button>-->
+            编程题标题
+             <el-statistic :value="deadline"  time-indices  @finish="hilarity" format="HH:mm:ss"
+                           title="剩余时间：" class="time-box">
+            </el-statistic>
           </div>
+          <mavon-editor v-model="content"
+                        :subfield="false"
+                        defaultOpen="preview"
+                        :toolbarsFlag="false"
+                        :editable="false"
+                        :scrollStyle="true">
 
-          <!--问题描述-->
-          <div class="question-subtitle">问题描述</div>
-          <div class="question-content">
-            {{question.questionDescription}}
-          </div>
-
-          <!--命名规范-->
-          <div class="question-subtitle">命名规范</div>
-          <div class="question-content">
-            <ul>
-              <li v-for="(item, index) in question.namingConventions" :key="index">{{item}}</li>
-            </ul>
-          </div>
-
-          <!--测试样例-->
-          <div class="question-subtitle">测试样例</div>
-          <div  v-for="(item, index) in question.testSamples" :key="index">
-            示例{{index+1}}:
-            <div class="sample-box">
-              输入: {item.inputs}}
-              <br/>
-              输出: {{item.outputs}}
-            </div>
-          </div>
+          </mavon-editor>
         </el-card>
-
       </el-col>
       <!--编程区域-->
       <el-col :span="14" class="editor-box">
@@ -109,43 +87,28 @@
 
 <script>
 import ContainerHeader from '../common/ContainerHeader'
-import TimeCount from '../common/TimeCount'
 
 export default {
   name: 'Programming',
   components: {
-    ContainerHeader,
-    TimeCount
+    ContainerHeader
   },
   data () {
     return {
+      deadline: Date.now() + 1000 * 10,
       userInfo: {},
       experName: '',
       phaseName: 0,
-      questionNumber: 0,
       question: {
-        questionDescription: '如果一个对象是企鹅，那它是一只鸟。',
-        namingConventions: [
-          'penguin：一元谓词，penguin(X)表示对象X是企鹅；',
-          'bird：一元谓词，bird(X)表示对象X是鸟；',
-          '输出谓词为一元谓词bird。'
-        ],
-        testSamples: [
-          {
-            inputs: 'penguin(tweety)',
-            outputs: '{bird(tweety)}'
-          },
-          {
-            inputs: 'cat(tom)',
-            outputs: ''
-          },
-          {
-            inputs: 'cat(tom)',
-            outputs: ''
-          }
-        ]
+        questionId: '',
+        content: '',
+        number: 0,
+        remark: '',
+        timeLimit: 0,
+        runtimeLimit: 0,
+        isLast: 0
+
       },
-      remainingTime: 1000,
       editorDisabled: false,
       programmingResult: '',
       nextQuestion: '',
@@ -183,7 +146,6 @@ export default {
         questionNumber: this.userInfo.questionNumber
       })
       this.question = res.data
-      console.log(this.question)
     },
     handleSubmit () {
       // 清空提交结果;反馈测试中;禁用提交按钮
@@ -236,6 +198,10 @@ export default {
     display: flex;
     justify-content: space-between;
     align-items: center;
+  }
+
+  .time-box {
+    width: 30%;
   }
 }
 

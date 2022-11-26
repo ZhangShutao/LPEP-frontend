@@ -19,7 +19,7 @@
           <el-input v-model="loginForm.password" prefix-icon="iconfont icon-3702mima" type="password"></el-input>
         </el-form-item>
         <!--按钮区域-->
-        <el-form-item class="btns">
+        <el-form-item class="buttons">
           <el-button type="primary" @click="test1">管理员</el-button>
           <el-button type="primary" @click="test2">用户</el-button>
           <el-button type="primary" @click="login" :loading="loading">登录</el-button>
@@ -45,12 +45,12 @@ export default {
   },
   methods: {
     test1 () {
-      this.loginForm.username = '22000'
+      this.loginForm.username = 'admin'
       this.loginForm.password = 'admin'
     },
     test2 () {
       this.loginForm.username = '22001'
-      this.loginForm.password = 'zhangsan'
+      this.loginForm.password = '22001'
     },
     // 用户登录
     async login () {
@@ -64,10 +64,9 @@ export default {
         isAdmin: res.data.isAdmin === 1,
         username: res.data.realname
       }
-      console.log(userInfo)
       sessionStorage.setItem('userInfo', JSON.stringify(userInfo))
       this.$message.success('登录成功')
-      if (res.data.isAdmin === 1) {
+      if (userInfo.isAdmin) {
         await this.$router.push('/admin')
       } else {
         await this.$router.push('/user')
@@ -129,7 +128,7 @@ export default {
   box-sizing: border-box;
 }
 
-.btns {
+.buttons {
   display: flex;
   justify-content: flex-end;
 }

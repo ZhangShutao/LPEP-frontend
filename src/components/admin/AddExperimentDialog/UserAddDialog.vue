@@ -1,7 +1,8 @@
 <template>
   <!--添加用户对话框-->
   <el-dialog title="添加用户" :visible.sync="visible" width="30%" append-to-body :show-close="false">
-    <el-form :model="userAddForm" label-width="90px" ref="userAddFormRef" :rules="userAddRules">
+    <el-form :model="userAddForm" label-width="90px"
+             ref="userAddFormRef" :rules="userAddRules">
       <el-form-item label="学号/工号" prop="username">
         <el-input v-model="userAddForm.username"></el-input>
       </el-form-item>
@@ -15,7 +16,7 @@
     </el-form>
     <div slot="footer" class="dialog-footer">
       <el-button type="primary" @click="addParticipate()">添 加</el-button>
-      <el-button @click="closeDialog()">取 消</el-button>
+      <el-button @click="closeDialog">取 消</el-button>
     </div>
   </el-dialog>
 </template>
@@ -50,6 +51,7 @@ export default {
   },
   methods: {
     closeDialog () {
+      this.$refs.userAddFormRef.resetFields()
       this.$emit('close-dialog')
     },
     // 添加参试人员
