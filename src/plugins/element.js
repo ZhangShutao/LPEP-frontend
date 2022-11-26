@@ -86,8 +86,8 @@ Vue.use(Upload)
 Vue.use(Checkbox)
 Vue.use(CheckboxGroup)
 Vue.use(Statistic)
+Vue.use(Loading)
 // 全局挂载
-Vue.prototype.$loading = Loading.service
 Vue.prototype.$message = Message
 Vue.prototype.$confirm = MessageBox.confirm
 Vue.prototype.$alert = MessageBox.alert

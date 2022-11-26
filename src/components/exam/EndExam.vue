@@ -1,21 +1,20 @@
 <template>
   <div>
-    测验结束，感谢您的参与
-    <mavon-editor v-model="content" font-size=""
-                  :subfield="false"
-                  defaultOpen="preview"
-                  :toolbarsFlag="false"
-                  :editable="false"
-                  :scrollStyle="true">
-
-    </mavon-editor>
-    <div>
-      <el-statistic :value="deadline2"  time-indices title="商品降价" @finish="hilarity">
-        <template slot="suffix">
-          抢购即将开始
-        </template>
-      </el-statistic>
-    </div>>
+    <!--<el-row>-->
+    <!--  <el-col span="12" style="background: #0a417a; height: 100%">123</el-col>-->
+    <!--  <el-col span="12">-->
+    <!--    <el-row>123</el-row>-->
+    <!--    <el-row>123</el-row>-->
+    <!--  </el-col>-->
+    <!--</el-row>-->
+    <el-container >
+      <el-aside style="height: 100%">123
+      </el-aside>
+      <el-container>
+        <el-main>123</el-main>
+        <el-main>123</el-main>
+      </el-container>
+    </el-container>
   </div>
 </template>
 
@@ -29,13 +28,6 @@ export default {
     }
   },
   methods: {
-    hilarity () {
-      this.$notify({
-        title: '提示',
-        message: '时间已到，你可知寸金难买寸光阴？',
-        duration: 0
-      })
-    }
   }
 }
 </script>

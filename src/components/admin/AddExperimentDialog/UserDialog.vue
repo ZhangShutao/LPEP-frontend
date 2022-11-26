@@ -1,5 +1,5 @@
 <template>
-  <!--新建实验7-参试人员管理-->
+  <!--参试人员管理-->
   <el-dialog title="参试人员管理" :visible.sync="visible" width="50%"
              :show-close="false"
              :before-close="beforeClose">
@@ -37,9 +37,8 @@
       </el-pagination>
     </div>
     <div slot="footer">
-      <el-button type="primary" @click="handleNextDialog(-1)">上一步</el-button>
-      <el-button type="primary" @click="handleNextDialog(1)">完成</el-button>
-      <el-button @click="handleNextDialog(0)">取 消</el-button>
+      <el-button type="primary" @click="handleCloseDialog">完成</el-button>
+      <el-button @click="handleCloseDialog">取 消</el-button>
     </div>
     <user-participate-dialog :visible.sync="addUserToExperimentVisible"
                              :experId="experId"
@@ -70,7 +69,6 @@ export default {
       participantsTableData: [],
       addUserToExperimentVisible: false,
       userAddVisible: false,
-      experId: '',
       groupList: []
     }
   },
@@ -78,10 +76,12 @@ export default {
     visible: {
       type: Boolean
     },
-    form: {}
+    experId: {
+      type: String
+    }
   },
   watch: {
-    visible: {
+    experId: {
       handler () {
         this.getAllParticipates()
       }
@@ -91,8 +91,8 @@ export default {
     beforeClose () {
       this.$emit('update:visible', false)
     },
-    handleNextDialog (type) {
-      this.$emit('next-dialog', type)
+    handleCloseDialog () {
+      this.$emit('close-dialog')
     },
     handlePageChange (newPage) {
       this.userQueryInfo.pageIndex = newPage
@@ -101,7 +101,7 @@ export default {
     // 获取所有参试人员
     async getAllParticipates () {
       const { data: res } = await this.$http.post('user/getallusergroup', {
-        experId: this.form.experId,
+        experId: this.experId,
         pageIndex: this.userQueryInfo.pageIndex,
         pageSize: this.userQueryInfo.pageSize
       })
@@ -114,7 +114,7 @@ export default {
         type: 'warning'
       }).then(async () => {
         const { data: res } = await this.$http.post('user/deletefromexper', {
-          experId: this.form.experId,
+          experId: this.experId,
           userId: userId
         })
         if (res.status === 204) {
@@ -127,10 +127,15 @@ export default {
       })
     },
     // 触发添加用户到实验按钮
-    handleAddUserToExperiment () {
+    async handleAddUserToExperiment () {
       this.addUserToExperimentVisible = true
-      this.experId = this.form.experId
-      this.groupList = this.form.groupInfoList
+      const { data: res } = await this.$http.get('exper/querygroups', {
+        params: { experId: this.experId }
+      })
+      if (res.status !== 200) {
+        return this.$message.error('获取组别信息错误')
+      }
+      this.groupList = res.data
     },
     handleCloseAddUserToExperimentDialog () {
       this.addUserToExperimentVisible = false

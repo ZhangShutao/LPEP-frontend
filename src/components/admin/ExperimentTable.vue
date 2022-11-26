@@ -37,11 +37,11 @@
             @click="handleAnalysis(scope.row.experId)"
             :disabled="scope.row.state !== 1">分析
           </el-button>
-          <!--<el-button-->
-          <!--  size="mini"-->
-          <!--  type="info"-->
-          <!--  @click="handleAddUserToExperiment(scope.row.experId)">添加用户到实验-->
-          <!--</el-button>-->
+          <el-button
+            size="mini"
+            type="info"
+            @click="UserDialogVisiable = true; handleQueryUser(scope.row.experId)">查看测试人员
+          </el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -79,17 +79,12 @@
                      :visible="addExperimentDialogVisiable[3]"
                      @next-dialog="handleNextDialog">
     </question-dialog>
+
     <!--参试人员管理-->
-    <user-dialog :form="addExperimentForm"
-                 :visible="addExperimentDialogVisiable[4]"
-                 @next-dialog="handleNextDialog">
+    <user-dialog :exper-id="currentExperId"
+                 :visible="UserDialogVisiable"
+                 @close-dialog="UserDialogVisiable = false">
     </user-dialog>
-    <!--用户添加到实验-->
-    <!--<user-participate-dialog-->
-    <!--            :visible="addExperimentDialogVisiable[5]"-->
-    <!--            :exper-id="currentExperId"-->
-    <!--            @close-dialog="handleCloseDialog(5)">-->
-    <!--</user-participate-dialog>-->
   </div>
 </template>
 
@@ -100,7 +95,6 @@ import GroupDialog from './AddExperimentDialog/GroupDialog'
 import PhaseDialog from './AddExperimentDialog/PhaseDialog'
 import QuestionDialog from './AddExperimentDialog/QuestionDialog'
 import UserDialog from './AddExperimentDialog/UserDialog'
-// import UserParticipateDialog from './AddExperimentDialog/UserParticipateDialog'
 export default {
   name: 'ExperimentTable',
   components: {
@@ -110,7 +104,6 @@ export default {
     PhaseDialog,
     QuestionDialog,
     UserDialog
-    // UserParticipateDialog
   },
   data () {
     return {
@@ -146,11 +139,10 @@ export default {
         false,
         false,
         false,
-        false,
         false
-        // false
       ],
       currentExperId: '',
+      UserDialogVisiable: false,
       resetForm: false
     }
   },
@@ -221,11 +213,12 @@ export default {
     // 触发分析实验按钮
     handleAnalysis (experId) {
     },
-    handleAddUserToExperiment (experId) {
-      this.resetForm = true
-      this.$set(this.addExperimentDialogVisiable, 5, true)
+
+    // 查看测试人员
+    handleQueryUser (experId) {
       this.currentExperId = experId
     },
+
     handleCloseDialog (index) {
       this.$set(this.addExperimentDialogVisiable, index, false)
     },
