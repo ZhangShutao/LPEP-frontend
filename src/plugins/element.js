@@ -42,7 +42,8 @@ import {
   Upload,
   Checkbox,
   CheckboxGroup,
-  Statistic
+  Statistic,
+  Result
 } from 'element-ui'
 import mavonEditor from 'mavon-editor'
 
@@ -87,6 +88,7 @@ Vue.use(Checkbox)
 Vue.use(CheckboxGroup)
 Vue.use(Statistic)
 Vue.use(Loading)
+Vue.use(Result)
 // 全局挂载
 Vue.prototype.$message = Message
 Vue.prototype.$confirm = MessageBox.confirm

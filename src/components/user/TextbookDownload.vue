@@ -58,14 +58,7 @@ export default {
       })
       this.tableData = res.data
       console.log(this.tableData)
-    },
-    // 打开指定培训教材
-    async getTextbook (textbookId) {
-      // await this.$http.get('train/files/' + textbookId)
-      // const newsUrl = this.$router.resolve(url);
-      // window.open(newsUrl.href);
     }
-
   }
 }
 </script>

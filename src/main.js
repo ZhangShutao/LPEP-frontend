@@ -13,6 +13,18 @@ import './assets/theme/blue-dark/index.css'
 import axios from 'axios'
 import { baseUrl } from './vue.config.js'
 
+import NProgress from 'nprogress'
+import 'nprogress/nprogress.css'
+
+axios.interceptors.request.use(config => {
+  NProgress.start()
+  return config
+})
+axios.interceptors.response.use(config => {
+  NProgress.done()
+  return config
+})
+
 axios.defaults.baseURL = baseUrl
 axios.defaults.timeout = 5000
 Vue.prototype.$http = axios

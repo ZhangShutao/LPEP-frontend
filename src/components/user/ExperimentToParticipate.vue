@@ -8,6 +8,9 @@
       stripe
       border
       size="small">
+      <template slot="empty">
+        暂无待参与实验
+      </template>
       <el-table-column type="index" width="50"></el-table-column>
       <el-table-column label="实验名" prop="title" width="200"></el-table-column>
       <el-table-column label="开始时间" prop="startTime" width="200"></el-table-column>
@@ -100,6 +103,7 @@ export default {
         // 更新阶段信息
         this.userInfo.phaseNumber = experiment.state === 2 ? experiment.currentPhaseNumber : 1
         this.userInfo.questionNumber = experiment.state === 2 ? experiment.currentQuestionNumber : 1
+        this.userInfo.startTime = experiment.state === 2 ? experiment.currentStartTime : Date.now()
         // 获取实验类型
         const { data: res } = await this.$http.post('exper/getnextphasestatus', {
           userId: this.queryInfo.userId,

@@ -23,7 +23,7 @@
       <div v-if="question.type === 1">
         <el-form-item prop="answer">
           <el-radio-group v-model="question.answer" >
-            <div v-for="(item, index) in question.options" :key="index" class="option-box">
+            <div v-for="index in question.options.length" :key="index" class="option-box">
               <el-radio :label="String.fromCharCode('A'.charCodeAt(0)+ index)">
                 <el-form-item :label="'选项' + String.fromCharCode('A'.charCodeAt(0)+ index)"
                               :prop="'options.' + index"

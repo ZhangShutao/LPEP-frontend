@@ -3,6 +3,7 @@
     <container-header :title="experName" :sub-title="'阶段' +phaseName"></container-header>
       <!--程序编写页面-->
       <el-container>
+        <!--{{Date.now()}}-->
         <el-aside width="700px">
           <el-card>
             <!--倒计时-->
@@ -23,7 +24,7 @@
         <el-main class="right-box">
           <!--编程区域-->
           <el-input type="textarea" v-model="source"
-                    :rows="16" :disabled="editorDisabled"
+                    :rows="16"
                     placeholder="请在此编程">
           </el-input>
           <!--测试用例,执行结果-->
@@ -36,23 +37,23 @@
                   v-loading="loading"
                   element-loading-spinner="el-icon-loading"
                   element-loading-text="测试中……">
-                  <el-card class="box-card" v-if="executeResult.status">
                     <!--执行结果-->
-                    <div slot="header" class="clearfix">
-                      <span>{{ executeResult.status }}</span>
-                      <span>{{ executeResult.errorMsg }}</span>
+                    <div class="submit-result-box" v-if="executeResult.status">
+                      {{ executeResult.status }}<br/>
+                      {{ executeResult.errorMsg }}
+                      123
                     </div>
-                    <!--执行结果详情-->
                     <div>
-                      最后执行的输入:
-                      <div class="sample-box">
-                        错误用例编号:{{executeResult.numberOfWrong}}<br/>
+                      <div class="sample-box"
+                           v-if="executeResult.status === 'wrong answer' ||
+                           executeResult.status === 'time limit exceeded'">
+                      最后执行的输入:<br/>
+                        用例编号: {{executeResult.numberOfWrong}}<br/>
                         测试数据: {{executeResult.wrongCaseInput}}<br/>
                         标准输出: {{executeResult.standardOutput}}<br/>
                         实际输出: {{executeResult.userOutput}}
                       </div>
                     </div>
-                  </el-card>
                 </div>
               </el-tab-pane>
               <!--提交记录区域-->
@@ -81,8 +82,8 @@
           <div class="function-box">
             <el-button
               type="primary"
-              :disabled="submitDisabled"
               @click="handleSubmit"
+              :loading="loading"
             >提交
             </el-button>
             <el-button
@@ -100,6 +101,7 @@
 
 <script>
 import ContainerHeader from '../common/ContainerHeader'
+import NProgress from 'nprogress'
 
 export default {
   name: 'Programming',
@@ -112,6 +114,7 @@ export default {
       userInfo: {},
       experName: '',
       phaseName: 0,
+      startTime: 0,
       source: '',
       // 程序代码
       question: {
@@ -131,8 +134,6 @@ export default {
         standardOutput: '',
         userOutput: ''
       },
-      editorDisabled: false,
-      submitDisabled: false,
       activeName: 'result',
       pageTotal: 0,
       query: {
@@ -143,14 +144,14 @@ export default {
       loading: false
     }
   },
-  watch: {
-    question: {
-      handler () {
-        this.deadline = Date.now() + 1000 * 60 * this.question.timeLimit
-        this.source = ''
-      }
-    }
-  },
+  // watch: {
+  //   question: {
+  //     handler () {
+  //       this.deadline = Date.now() + 1000 * 60 * this.question.timeLimit
+  //       this.source = ''
+  //     }
+  //   }
+  // },
   created () {
     this.getExperimentInfo()
     this.getQuestion()
@@ -162,6 +163,11 @@ export default {
       this.experName = this.userInfo.experName
       this.phaseName = this.userInfo.phaseNumber
       this.questionNumber = this.userInfo.questionNumber
+      this.startTime = this.userInfo.startTime
+      if (this.startTime > 0) {
+        this.userInfo.startTime = 0
+        sessionStorage.setItem('userInfo', JSON.stringify(this.userInfo))
+      }
     },
 
     // 获取问题列表
@@ -180,6 +186,13 @@ export default {
         return this.$message.error('获取问题错误')
       }
       this.question = res.data
+      if (this.startTime > 0) {
+        this.deadline = this.startTime + 1000 * 60 * this.question.timeLimit
+        this.startTime = 0
+      } else {
+        this.deadline = Date.now() + 1000 * 60 * this.question.timeLimit
+      }
+      this.source = ''
     },
 
     async gotoNextPhase () {
@@ -206,56 +219,76 @@ export default {
       }
     },
 
+    // 提交答案
     async handleSubmit () {
       // 清空提交结果;反馈测试中;禁用提交按钮
-      this.executeResult.status = ''
+      this.$set(this.executeResult, status, '')
+      // this.executeResult.status = ''
       this.loading = true
-      this.submitDisabled = true
       try {
         const { data: res } = await this.$http.post('/submit/prog_submit', {
           userId: this.userInfo.id,
           questionId: this.question.questionId,
           source: this.source
         })
-        if (res.status !== 205) {
-          return this.$message.error('提交答案出错')
-        }
         this.executeResult = res.data
         this.activeName = 'result'
-        // 获取下一题(下一阶段)
-        this.userInfo.questionNumber = this.userInfo.questionNumber + 1
-        sessionStorage.setItem('userInfo', JSON.stringify(this.userInfo))
-        this.getQuestion()
+
+        if (res.status === 205) {
+          this.$alert('本题答案已通过,即将开始下一题', '测试通过', {
+            confirmButtonText: '确认',
+            callback: () => {
+              // 获取下一题(下一阶段)
+              this.userInfo.questionNumber = this.userInfo.questionNumber + 1
+              sessionStorage.setItem('userInfo', JSON.stringify(this.userInfo))
+              this.getQuestion()
+            }
+          })
+        }
       } catch (error) {
+        this.$message.error('提交答案出错')
         console.log('结束')
       } finally {
+        NProgress.done()
         this.loading = false
-        this.submitDisabled = false
-        this.$message.error('提交答案出错')
       }
     },
 
     // 放弃题目
     async handleAbandon () {
-      const { data: res } = await this.$http.post('/submit/prog_submit', {
-        userId: this.userInfo.id,
-        questionId: this.question.questionId
+      this.$confirm('确定要放弃该题吗？', '提示', {
+        type: 'warning'
+      }).then(async () => {
+        const { data: res } = await this.$http.post('/submit/submit_abort', {
+          userId: this.userInfo.id,
+          questionId: this.question.questionId
+        })
+        if (res.status !== 205) {
+          return this.$message.error('放弃失败')
+        }
+        this.$alert('本题已放弃,即将开始下一题', '提示', {
+          confirmButtonText: '确认',
+          callback: () => {
+            // 获取下一题(下一阶段)
+            this.userInfo.questionNumber = this.userInfo.questionNumber + 1
+            sessionStorage.setItem('userInfo', JSON.stringify(this.userInfo))
+            this.getQuestion()
+          }
+        })
       })
-      if (res.status !== 201) {
-        return this.$message.error('放弃失败')
-      }
-      // 获取下一题(下一阶段)
-      this.userInfo.questionNumber = this.userInfo.questionNumber + 1
-      sessionStorage.setItem('userInfo', JSON.stringify(this.userInfo))
-      this.getQuestion()
     },
 
     // 计时结束
     hilarity () {
-      this.editorDisabled = true
-      this.$alert('计时结束,进入下一阶段').then(
-        // 自动提交
-      )
+      this.$alert('本题用时已结束,即将开始下一题', '提示', {
+        confirmButtonText: '确认',
+        callback: () => {
+          // 获取下一题(下一阶段)
+          this.userInfo.questionNumber = this.userInfo.questionNumber + 1
+          sessionStorage.setItem('userInfo', JSON.stringify(this.userInfo))
+          this.getQuestion()
+        }
+      })
     },
 
     handleTabChange (tab) {
@@ -270,7 +303,7 @@ export default {
       const { data: res } = await this.$http.get('/submit/list_prog_submit', {
         params: {
           userId: this.userInfo.id,
-          problemId: this.question.questionId,
+          questionId: this.question.questionId,
           pageIndex: this.query.pageIndex,
           pageSize: this.query.pageSize
         }
@@ -278,11 +311,13 @@ export default {
       if (res.status !== 200) {
         return this.$message.error('获取提交记录失败')
       }
+      this.submitData = res.data.programSubmitInfoList
+      this.pageTotal = res.data.recordCount
     },
 
     handlePageChange (newPage) {
       this.query.pageIndex = newPage
-      this.getTextbookList()
+      this.getSubmitRecord()
     }
 
   }
@@ -309,8 +344,17 @@ export default {
   border: #63a35c 1px solid;
   margin-top: 10px;
   .el-tab-pane {
-    height: 25vh;
+    height: 290px;
     padding: 10px;
+    .submit-result-box {
+      height: 100px;
+      overflow-y: auto;
+      //border: #63a35c 1px solid;
+    }
+    .sample-box {
+      background-color: #f2f2f4;
+      margin: 10px;
+    }
   }
 }
 

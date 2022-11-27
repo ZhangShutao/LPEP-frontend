@@ -83,7 +83,7 @@ export default {
     },
     generateAddExperimentTableData () {
       this.addExperimentTableData = []
-      this.addExperimentForm.phaseInfoList.forEach((phase, index) => {
+      this.addExperimentForm.phaseInfoList.forEach((phase) => {
         this.addExperimentForm.groupInfoList.forEach((group) => {
           if (phase.phaseName !== '' && group.groupName !== '') {
             this.addExperimentTableData.push({
