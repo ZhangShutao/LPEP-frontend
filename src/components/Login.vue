@@ -56,20 +56,24 @@ export default {
     async login () {
       // 可以在登录之前实现预验证，这里没有进行验证
       this.loading = true
-      const { data: res } = await this.$http.post('user/login', this.loginForm)
-      this.loading = false
-      if (res.status !== 200 || res.data === null) return this.$message.error('登录失败！')
-      const userInfo = {
-        id: res.data.userId,
-        isAdmin: res.data.isAdmin === 1,
-        username: res.data.realname
-      }
-      sessionStorage.setItem('userInfo', JSON.stringify(userInfo))
-      this.$message.success('登录成功')
-      if (userInfo.isAdmin) {
-        await this.$router.push('/admin')
-      } else {
-        await this.$router.push('/user')
+      try {
+        const { data: res } = await this.$http.post('user/login', this.loginForm)
+        if (res.status !== 200 || res.data === null) return this.$message.error('登录失败！')
+        const userInfo = {
+          id: res.data.userId,
+          isAdmin: res.data.isAdmin === 1,
+          username: res.data.realname
+        }
+        sessionStorage.setItem('userInfo', JSON.stringify(userInfo))
+        this.$message.success('登录成功')
+        if (userInfo.isAdmin) {
+          await this.$router.push('/admin')
+        } else {
+          await this.$router.push('/user')
+        }
+      } finally {
+        this.$message.error('登录出错，请联系管理员')
+        this.loading = false
       }
     },
     // 点击重置按钮，重置登录表单

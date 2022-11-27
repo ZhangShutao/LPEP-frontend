@@ -66,6 +66,9 @@ export default {
       }
     }
   },
+  created () {
+    this.getGroupList(this.experId)
+  },
   methods: {
     beforeClose () {
       this.$emit('update:visible', false)

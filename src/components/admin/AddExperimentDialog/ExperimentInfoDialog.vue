@@ -66,7 +66,9 @@ export default {
   watch: {
     resetForm: {
       handler () {
-        this.$refs.formRef.resetFields()
+        if (this.$refs.formRef) {
+          this.$refs.formRef.resetFields()
+        }
       }
     }
   },

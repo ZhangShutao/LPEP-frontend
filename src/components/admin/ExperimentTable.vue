@@ -155,6 +155,7 @@ export default {
       const userInfo = JSON.parse(sessionStorage.getItem('userInfo'))
       this.addExperimentForm.creatorId = userInfo.id
     },
+
     async getExperimentList () {
       const { data: res } = await this.$http.get('admin/listallexper', {
         params: this.query
@@ -162,10 +163,12 @@ export default {
       this.pageTotal = res.data.recordCount
       this.experimentTableData = res.data.experInfoList
     },
+
     handlePageChange (newPage) {
       this.query.pageIndex = newPage
       this.getExperimentList()
     },
+
     // 状态转换
     changeStatus (row, column) {
       const value = row[column.property]
@@ -173,9 +176,11 @@ export default {
       else if (value === 1) return '已结束'
       else return '进行中'
     },
+
     filterStatus (value, row) {
       return row.state === value
     },
+
     // 触发开始实验按钮
     handleStart (experId) {
       this.$confirm('确定要开始实验吗？', '提示', {
@@ -193,6 +198,7 @@ export default {
         this.getExperimentList()
       })
     },
+
     // 触发取消实验按钮
     handleCancel (experId) {
       this.$confirm('确定要结束实验吗？', '提示', {
@@ -210,6 +216,7 @@ export default {
         this.getExperimentList()
       })
     },
+
     // 触发分析实验按钮
     handleAnalysis (experId) {
     },
@@ -222,6 +229,7 @@ export default {
     handleCloseDialog (index) {
       this.$set(this.addExperimentDialogVisiable, index, false)
     },
+
     // 控制对话框弹出
     handleNextDialog (type) {
       this.handleCloseDialog(this.visiableDialogIndex)
@@ -236,12 +244,14 @@ export default {
         this.resetForm = true
       }
     },
+
     // 开启新增实验处理流程
     addExperiment () {
       this.resetForm = false
       this.visiableDialogIndex = 0
       this.$set(this.addExperimentDialogVisiable, 0, true)
     },
+
     // 创建实验
     async handleCreateExperiment () {
       const { data: res } = await this.$http.post('admin/createexper', this.addExperimentForm)
@@ -259,6 +269,7 @@ export default {
         }
       })
       this.handleNextDialog(1)
+      this.getExperimentList()
     }
   }
 }

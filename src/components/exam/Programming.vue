@@ -22,45 +22,58 @@
         </el-aside>
         <el-main class="right-box">
           <!--编程区域-->
-          <div>
-            <el-input type="textarea" v-model="question.source"
-                      :rows="16" :disabled="editorDisabled"
-                      placeholder="请在此编程">
-            </el-input>
-          </div>
+          <el-input type="textarea" v-model="source"
+                    :rows="16" :disabled="editorDisabled"
+                    placeholder="请在此编程">
+          </el-input>
           <!--测试用例,执行结果-->
           <div class="result-box">
-            <el-tabs v-model="activeName" type="card">
+            <el-tabs v-model="activeName" type="card" @tab-click="handleTabChange">
               <!--执行结果区域-->
-              <el-tab-pane label="提交结果" name="first">
+              <el-tab-pane label="提交结果" name="result">
                 <div
                   style="height: 100%"
                   v-loading="loading"
                   element-loading-spinner="el-icon-loading"
                   element-loading-text="测试中……">
-                  <el-card class="box-card" v-if="executeResult">
+                  <el-card class="box-card" v-if="executeResult.status">
                     <!--执行结果-->
                     <div slot="header" class="clearfix">
+                      <span>{{ executeResult.status }}</span>
                       <span>{{ executeResult.errorMsg }}</span>
                     </div>
                     <!--执行结果详情-->
                     <div>
-                      {{executeResultInfo}}
-                      <div v-if="executeStatus === 2 || executeStatus === 3 ">
-                        最后执行的输入:
-                        <div class="sample-box">
-                          错误用例编号:{{executeResult.numberOfWrong}} 测试数据: {{executeResult.wrongCaseInput}}<br/>
-                          标准输出: {{executeResult.standardOutput}}<br/>
-                          实际输出: {{executeResult.userOutput}}
-                        </div>
+                      最后执行的输入:
+                      <div class="sample-box">
+                        错误用例编号:{{executeResult.numberOfWrong}}<br/>
+                        测试数据: {{executeResult.wrongCaseInput}}<br/>
+                        标准输出: {{executeResult.standardOutput}}<br/>
+                        实际输出: {{executeResult.userOutput}}
                       </div>
                     </div>
                   </el-card>
                 </div>
               </el-tab-pane>
               <!--提交记录区域-->
-              <el-tab-pane label="提交记录" name="second">
-
+              <el-tab-pane label="提交记录" name="record">
+                <el-table
+                  :data="submitData"
+                  size="small">
+                  <el-table-column type="index"></el-table-column>
+                  <el-table-column label="提交时间" prop="submitTime"></el-table-column>
+                  <el-table-column label="提交状态" prop="status"></el-table-column>
+                </el-table>
+                <div class="pagination">
+                  <el-pagination
+                    background
+                    layout="prev, pager, next"
+                    :current-page="query.pageIndex"
+                    :page-size="query.pageSize"
+                    :total="pageTotal"
+                    @current-change="handlePageChange">
+                  </el-pagination>
+                </div>
               </el-tab-pane>
             </el-tabs>
           </div>
@@ -95,10 +108,12 @@ export default {
   },
   data () {
     return {
-      deadline: Date.now() + 1000 * 10,
+      deadline: Date.now() + 1000 * 60 * 60,
       userInfo: {},
       experName: '',
       phaseName: 0,
+      source: '',
+      // 程序代码
       question: {
         questionId: '',
         content: '',
@@ -106,9 +121,7 @@ export default {
         remark: '',
         timeLimit: 0,
         runtimeLimit: 0,
-        isLast: -1,
-        // 程序代码
-        source: ''
+        isLast: -1
       },
       executeResult: {
         status: '',
@@ -120,8 +133,22 @@ export default {
       },
       editorDisabled: false,
       submitDisabled: false,
-      activeName: 'first',
+      activeName: 'result',
+      pageTotal: 0,
+      query: {
+        pageIndex: 1,
+        pageSize: 5
+      },
+      submitData: [],
       loading: false
+    }
+  },
+  watch: {
+    question: {
+      handler () {
+        this.deadline = Date.now() + 1000 * 60 * this.question.timeLimit
+        this.source = ''
+      }
     }
   },
   created () {
@@ -143,8 +170,6 @@ export default {
       if (this.question.isLast === 1) {
         return this.gotoNextPhase()
       }
-      this.userInfo.questionNumber = this.userInfo.questionNumber + 1
-      sessionStorage.setItem('userInfo', JSON.stringify(this.userInfo))
       const { data: res } = await this.$http.post('exper/getprogquestion', {
         userId: this.userInfo.id,
         experId: this.userInfo.experId,
@@ -155,7 +180,6 @@ export default {
         return this.$message.error('获取问题错误')
       }
       this.question = res.data
-      this.question.source = ''
     },
 
     async gotoNextPhase () {
@@ -165,9 +189,9 @@ export default {
       sessionStorage.setItem('userInfo', JSON.stringify(this.userInfo))
       // 获取下一阶段实验类型
       const { data: res } = await this.$http.post('exper/getnextphasestatus', {
-        userId: this.userInfo.userId,
+        userId: this.userInfo.id,
         experId: this.userInfo.experId,
-        phaseNumber: this.userInfo.phase
+        phaseNumber: this.userInfo.phaseNumber
       })
       if (res.status === 206) {
         return this.$router.push('/exam/empty-phase')
@@ -184,38 +208,81 @@ export default {
 
     async handleSubmit () {
       // 清空提交结果;反馈测试中;禁用提交按钮
-      this.executeResult = ''
+      this.executeResult.status = ''
       this.loading = true
       this.submitDisabled = true
-      const { data: res } = await this.$http.post('/submit/prog_submit', {
-        userId: this.userInfo.id,
-        questionId: this.question.questionId,
-        source: this.question.source
-      })
-
-      this.executeResult = res.data
-      this.executeStatus = 2
-      this.executeResult = '测试不通过'
-      this.loading = false
-      this.submitDisabled = false
-
-      if (res.status !== 205) {
-        return this.$message.error('提交答案出错')
+      try {
+        const { data: res } = await this.$http.post('/submit/prog_submit', {
+          userId: this.userInfo.id,
+          questionId: this.question.questionId,
+          source: this.source
+        })
+        if (res.status !== 205) {
+          return this.$message.error('提交答案出错')
+        }
+        this.executeResult = res.data
+        this.activeName = 'result'
+        // 获取下一题(下一阶段)
+        this.userInfo.questionNumber = this.userInfo.questionNumber + 1
+        sessionStorage.setItem('userInfo', JSON.stringify(this.userInfo))
+        this.getQuestion()
+      } catch (error) {
+        console.log('结束')
+      } finally {
+        this.loading = false
+        this.submitDisabled = false
+        this.$message.error('提交答案出错')
       }
-      this.gotoNextPhase()
     },
 
     // 放弃题目
-    handleAbandon () {
-
+    async handleAbandon () {
+      const { data: res } = await this.$http.post('/submit/prog_submit', {
+        userId: this.userInfo.id,
+        questionId: this.question.questionId
+      })
+      if (res.status !== 201) {
+        return this.$message.error('放弃失败')
+      }
+      // 获取下一题(下一阶段)
+      this.userInfo.questionNumber = this.userInfo.questionNumber + 1
+      sessionStorage.setItem('userInfo', JSON.stringify(this.userInfo))
+      this.getQuestion()
     },
 
     // 计时结束
     hilarity () {
       this.editorDisabled = true
       this.$alert('计时结束,进入下一阶段').then(
-        this.gotoNextPhase()
+        // 自动提交
       )
+    },
+
+    handleTabChange (tab) {
+      if (tab.label === '提交记录') {
+        // 更新提交记录
+        this.getSubmitRecord()
+      }
+    },
+
+    // 提交记录
+    async getSubmitRecord () {
+      const { data: res } = await this.$http.get('/submit/list_prog_submit', {
+        params: {
+          userId: this.userInfo.id,
+          problemId: this.question.questionId,
+          pageIndex: this.query.pageIndex,
+          pageSize: this.query.pageSize
+        }
+      })
+      if (res.status !== 200) {
+        return this.$message.error('获取提交记录失败')
+      }
+    },
+
+    handlePageChange (newPage) {
+      this.query.pageIndex = newPage
+      this.getTextbookList()
     }
 
   }
@@ -249,6 +316,11 @@ export default {
 
 .function-box {
   margin-top: 10px;
+  text-align: right;
+}
+
+.pagination {
+  margin: 20px 0;
   text-align: right;
 }
 

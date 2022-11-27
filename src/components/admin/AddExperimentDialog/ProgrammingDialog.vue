@@ -236,11 +236,11 @@ export default {
       } else {
         this.uploadParam.data.isInput = 0
       }
-      const testmsg = file.name.substring(file.name.lastIndexOf('.') + 1)
-      if (this.uploadParam.typeLimit.indexOf(testmsg) === -1) {
-        this.$alert('上传文件类型只能是' + this.uploadParam.typeLimit + '格式')
-        return false
-      }
+      // const testmsg = file.name.substring(file.name.lastIndexOf('.') + 1)
+      // if (this.uploadParam.typeLimit.indexOf(testmsg) === -1) {
+      //   this.$alert('上传文件类型只能是' + this.uploadParam.typeLimit + '格式')
+      //   return false
+      // }
     },
     handleRemove (file, fileList, sample, type) {
       if (type === 'input') {
