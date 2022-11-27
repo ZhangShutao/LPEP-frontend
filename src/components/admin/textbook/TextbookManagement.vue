@@ -61,7 +61,7 @@ export default {
     return {
       tableData: [],
       textbookUrlPrefix: baseUrl + 'train/files/',
-      pageTotal: 100,
+      pageTotal: 0,
       query: {
         pageIndex: 1,
         pageSize: 5

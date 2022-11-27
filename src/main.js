@@ -14,6 +14,7 @@ import axios from 'axios'
 import { baseUrl } from './vue.config.js'
 
 axios.defaults.baseURL = baseUrl
+axios.defaults.timeout = 5000
 Vue.prototype.$http = axios
 
 Vue.config.productionTip = false

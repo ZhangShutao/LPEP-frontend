@@ -23,7 +23,7 @@
       </el-table-column>
     </el-table>
     <div slot="footer">
-      <el-button type="primary" @click="handleNextDialog(1)">下一步</el-button>
+      <el-button type="primary" @click="handleNextDialog(0)">完成</el-button>
       <el-button @click="handleNextDialog(0)">取 消</el-button>
     </div>
     <!--问卷类型题目-->

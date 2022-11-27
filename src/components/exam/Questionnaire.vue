@@ -83,7 +83,7 @@ export default {
         if (valid) {
           this.validateAllForm(index + 1, count, fun)
         } else {
-          this.$message.warning('存在必选项未填，请仔细查看')
+          this.$message.warning('存在题目未作答，请仔细查看')
           return false
         }
       })

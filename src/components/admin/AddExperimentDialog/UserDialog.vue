@@ -42,7 +42,6 @@
     </div>
     <user-participate-dialog :visible.sync="addUserToExperimentVisible"
                              :experId="experId"
-                             :groupList="groupList"
                              @close-dialog="handleCloseAddUserToExperimentDialog"></user-participate-dialog>
     <user-add-dialog :visible.sync="userAddVisible"
                      @finish-add-participate="getAllParticipates"
