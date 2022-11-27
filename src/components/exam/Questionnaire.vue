@@ -31,6 +31,7 @@
 
 <script>
 import ContainerHeader from '../common/ContainerHeader'
+import NProgress from 'nprogress'
 export default {
   name: 'Questionnaire',
   components: {
@@ -101,17 +102,24 @@ export default {
       })
       this.validateAllForm(0, this.questionList.length, async () => {
         this.loading = true
-        const { data: res } = await this.$http.post('exper/nonprogsubmit', {
-          userId: this.userInfo.id,
-          experId: this.userInfo.experId,
-          phaseNumber: this.userInfo.phaseNumber,
-          answers: answers
-        })
-        this.loading = false
-        if (res.status !== 205) {
-          return this.$message.error('提交答案出错')
+        try {
+          const { data: res } = await this.$http.post('exper/nonprogsubmit', {
+            userId: this.userInfo.id,
+            experId: this.userInfo.experId,
+            phaseNumber: this.userInfo.phaseNumber,
+            answers: answers
+          })
+          if (res.status !== 205) {
+            return this.$message.error('提交答案出错')
+          }
+          this.gotoNextPhase()
+        } catch (error) {
+          this.$message.error('服务出错,请联系管理员处理')
+          console.log('结束')
+        } finally {
+          NProgress.done()
+          this.loading = false
         }
-        this.gotoNextPhase()
       })
     },
 

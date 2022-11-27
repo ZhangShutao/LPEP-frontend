@@ -31,6 +31,8 @@
 </template>
 
 <script>
+import NProgress from 'nprogress'
+
 export default {
   name: 'Login',
   data () {
@@ -71,8 +73,10 @@ export default {
         } else {
           await this.$router.push('/user')
         }
+      } catch {
+        this.$message.error('登录出错，请检查网络或联系管理员')
       } finally {
-        this.$message.error('登录出错，请联系管理员')
+        NProgress.done()
         this.loading = false
       }
     },
