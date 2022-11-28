@@ -34,7 +34,7 @@
       </el-form-item>
     </el-form>
     <div slot="footer" class="dialog-footer">
-      <el-button type="primary" @click="submitUpload()" :loading="loading">{{addButtonContent}}</el-button>
+      <el-button type="primary" @click="submitUpload()" :loading="loading">添加</el-button>
       <el-button @click="handleCloseDialog">取 消</el-button>
     </div>
   </el-dialog>
@@ -69,9 +69,7 @@ export default {
         typeLimit: 'pdf'
       },
       fileList: [],
-      loading: false,
-      addButtonContent: '添 加'
-
+      loading: false
     }
   },
   props: {
@@ -105,14 +103,17 @@ export default {
         if (!valid) {
           return false
         }
-        this.loading = true
-        this.addButtonContent = '添加中'
-        this.$refs.upload.submit()
+        try {
+          this.loading = true
+          this.$refs.upload.submit()
+        } catch (error) {
+          this.$message.error('教材添加出错，请联系后台管理员')
+        } finally {
+          this.loading = false
+        }
       })
     },
     handleSuccess (response) {
-      this.loading = false
-      this.addButtonContent = '添 加'
       if (response.status !== 203) {
         return this.$message.error('教材创建失败,' + response.msg)
       }

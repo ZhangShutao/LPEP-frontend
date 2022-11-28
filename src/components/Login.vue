@@ -20,8 +20,6 @@
         </el-form-item>
         <!--按钮区域-->
         <el-form-item class="buttons">
-          <el-button type="primary" @click="test1">管理员</el-button>
-          <el-button type="primary" @click="test2">用户</el-button>
           <el-button type="primary" @click="login" :loading="loading">登录</el-button>
           <el-button type="info" @click="resetLoginForm">重置</el-button>
         </el-form-item>
@@ -46,14 +44,6 @@ export default {
     }
   },
   methods: {
-    test1 () {
-      this.loginForm.username = 'admin'
-      this.loginForm.password = 'admin'
-    },
-    test2 () {
-      this.loginForm.username = '22001'
-      this.loginForm.password = '22001'
-    },
     // 用户登录
     async login () {
       // 可以在登录之前实现预验证，这里没有进行验证

@@ -13,6 +13,7 @@ export default {
   name: 'PageHeader',
   methods: {
     signOut () {
+      sessionStorage.removeItem('userInfo')
       this.$router.push('/login')
     }
   }
