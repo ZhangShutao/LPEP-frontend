@@ -1,7 +1,7 @@
 <template>
   <!--程序阅读题（选择题）-->
   <div class="container">
-    <container-header :title="experName" :sub-title="'阶段' + phaseName"></container-header>
+    <container-header :title="userInfo.experName" :sub-title="'阶段' + userInfo.phaseNumber"></container-header>
     <!--表单绑定做题结果-->
     <el-form label-width="80px" label-position="top"
              :model="question" :ref="'questionnaireFormRef' + questionIndex" :rules="questionnaireFormRules"
@@ -43,30 +43,26 @@ export default {
       questionnaireForm: {},
       // 程序阅读题目列表
       questionList: [],
-      experName: '',
-      phaseName: 0,
       questionnaireFormRules: {
         reply: [
-          { required: true, message: '请填写答案', trigger: 'change' }
+          { required: true, message: '请填写答案', trigger: 'blur' }
         ]
       },
       loading: false
     }
   },
   created () {
-    this.getExperimentInfo()
     this.getQuestionList()
   },
   methods: {
     // 获取实验信息
     getExperimentInfo () {
       this.userInfo = JSON.parse(sessionStorage.getItem('userInfo'))
-      this.experName = this.userInfo.experName
-      this.phaseName = this.userInfo.phaseNumber
     },
 
     // 获取问题列表
     async getQuestionList () {
+      this.getExperimentInfo()
       const { data: res } = await this.$http.post('exper/getnonprogquestion', {
         userId: this.userInfo.id,
         experId: this.userInfo.experId,

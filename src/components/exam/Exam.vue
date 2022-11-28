@@ -48,6 +48,6 @@ export default {
 
 .content-box {
   left: 50px;
-  padding-top: 0px;
+  padding-top: 0;
 }
 </style>
