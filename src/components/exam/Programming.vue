@@ -144,14 +144,6 @@ export default {
       loading: false
     }
   },
-  // watch: {
-  //   question: {
-  //     handler () {
-  //       this.deadline = Date.now() + 1000 * 60 * this.question.timeLimit
-  //       this.source = ''
-  //     }
-  //   }
-  // },
   created () {
     this.getExperimentInfo()
     this.getQuestion()
@@ -164,14 +156,11 @@ export default {
       this.phaseName = this.userInfo.phaseNumber
       this.questionNumber = this.userInfo.questionNumber
       this.startTime = this.userInfo.startTime
-      if (this.startTime > 0) {
-        this.userInfo.startTime = 0
-        sessionStorage.setItem('userInfo', JSON.stringify(this.userInfo))
-      }
     },
 
     // 获取问题列表
     async getQuestion () {
+      this.getExperimentInfo()
       // 判断最后一题
       if (this.question.isLast === 1) {
         return this.gotoNextPhase()
@@ -186,12 +175,7 @@ export default {
         return this.$message.error('获取问题错误')
       }
       this.question = res.data
-      if (this.startTime > 0) {
-        this.deadline = this.startTime + 1000 * 60 * this.question.timeLimit
-        this.startTime = 0
-      } else {
-        this.deadline = Date.now() + 1000 * 60 * this.question.timeLimit
-      }
+      this.deadline = this.startTime + 1000 * 60 * this.question.timeLimit
       this.source = ''
     },
 
@@ -240,6 +224,7 @@ export default {
             callback: () => {
               // 获取下一题(下一阶段)
               this.userInfo.questionNumber = this.userInfo.questionNumber + 1
+              this.userInfo.startTime = Date.now()
               sessionStorage.setItem('userInfo', JSON.stringify(this.userInfo))
               this.getQuestion()
             }
@@ -247,7 +232,6 @@ export default {
         }
       } catch (error) {
         this.$message.error('提交答案出错')
-        console.log('结束')
       } finally {
         NProgress.done()
         this.loading = false
@@ -271,6 +255,7 @@ export default {
           callback: () => {
             // 获取下一题(下一阶段)
             this.userInfo.questionNumber = this.userInfo.questionNumber + 1
+            this.userInfo.startTime = Date.now()
             sessionStorage.setItem('userInfo', JSON.stringify(this.userInfo))
             this.getQuestion()
           }
@@ -338,6 +323,9 @@ export default {
 
 .right-box {
   padding: 0 15px;
+  .el-input {
+    border: #63a35c 1px solid;
+  }
 }
 
 .result-box {
