@@ -115,9 +115,10 @@ export default {
           if (res.status !== 205) {
             return this.$message.error('提交答案出错')
           }
+          this.$message.success('提交成功')
           this.gotoNextPhase()
         } catch (error) {
-          this.$message.error('服务出错,请联系管理员处理')
+          this.$message.error('提交出错,请联系管理员处理')
         } finally {
           NProgress.done()
           this.loading = false

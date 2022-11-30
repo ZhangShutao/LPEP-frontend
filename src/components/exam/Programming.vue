@@ -40,17 +40,17 @@
                     <div class="submit-result-box"
                          v-if="executeResult.status">
                       {{ executeResult.status }}<br/>
-                      {{ executeResult.errorMsg }}
+                      <span v-html="executeResult.errorMsg"></span>
                     </div>
                     <div>
                       <div class="sample-box"
                            v-if="executeResult.status === 'WRONG_ANSWER' ||
                            executeResult.status === 'TIME_LIMIT_EXCEEDED'">
                         最后执行的输入:<br/>
-                        <p>用例编号: {{executeResult.numberOfWrong}}</p>
-                        <p>测试数据: {{executeResult.wrongCaseInput}}</p>
-                        <p>标准输出: {{executeResult.standardOutput}}</p>
-                        <p>实际输出: {{executeResult.userOutput}}</p>
+                        <p>用例编号: <span v-html="executeResult.numberOfWrong"></span></p>
+                        <p>测试数据: <span v-html="executeResult.wrongCaseInput"></span></p>
+                        <p>标准输出: <span v-html="executeResult.standardOutput"></span></p>
+                        <p>实际输出: <span v-html="executeResult.userOutput"></span></p>
                       </div>
                     </div>
                 </div>
@@ -223,7 +223,18 @@ export default {
           questionId: this.question.questionId,
           source: this.source
         })
+        this.$message.success('提交成功')
         this.executeResult = res.data
+        // for (const key in this.executeResult) {
+        //   if (key !== 'numberOfWrong' && key !== 'errorMsg') {
+        //     this.executeResult[key] = this.executeResult[key].replace(/\n/g, '<br/>')
+        //   }
+        // }
+        if (this.executeResult.status === 'WRONG_ANSWER' || this.executeResult.status === 'TIME_LIMIT_EXCEEDED') {
+          this.executeResult.wrongCaseInput = this.executeResult.wrongCaseInput.replace(/\n/g, '<br/>')
+          this.executeResult.standardOutput = this.executeResult.standardOutput.replace(/\n/g, '<br/>')
+          this.executeResult.userOutput = this.executeResult.userOutput.replace(/\n/g, '<br/>')
+        }
         this.activeName = 'result'
 
         if (res.status === 205) {
@@ -235,7 +246,7 @@ export default {
           })
         }
       } catch (error) {
-        this.$message.error('提交答案出错')
+        this.$message.error('提交出错,请联系管理员处理')
       } finally {
         NProgress.done()
         this.loading = false
@@ -335,11 +346,11 @@ export default {
 
     padding: 10px;
     .submit-result-box {
-      //height: 50px;
+      //height: 100px;
       overflow-y: auto;
     }
     .sample-box {
-      height: 200px;
+      height: 400px;
       background-color: #f2f2f4;
       margin: 10px;
       overflow: auto;
