@@ -1,7 +1,12 @@
 <template>
   <div class="container-header">
     <div class="title">{{title}}</div>
-    <div class="sub-title">{{subTitle}}</div>
+    <div class="sub-title">
+      {{subTitle}}
+      <template v-if="questionNumber > 0">
+        — 题目{{questionNumber}}
+      </template>
+    </div>
     <el-divider></el-divider>
   </div>
 </template>
@@ -11,7 +16,8 @@ export default {
   name: 'ContainerHeader',
   props: {
     title: String,
-    subTitle: String
+    subTitle: String,
+    questionNumber: Number
   }
 }
 </script>

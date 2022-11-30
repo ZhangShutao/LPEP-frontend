@@ -7,12 +7,19 @@
              :model="question" :ref="'questionnaireFormRef' + questionIndex" :rules="questionnaireFormRules"
              v-for="(question, questionIndex) in questionList" :key="questionIndex">
       <!--选择题-->
-      <el-form-item :label="questionIndex + 1 + '. ' + question.content" v-if="question.type === 1"
+      <el-form-item :label="questionIndex + 1 + '. '" v-if="question.type === 1"
                     prop="reply">
+        <!--题干区域-->
+        <mavon-editor v-model="question.content"
+                      :subfield="false"
+                      defaultOpen="preview"
+                      :toolbarsFlag="false"
+                      :editable="false">
+        </mavon-editor>
         <el-radio-group v-model="question.reply">
           <div v-for="(option, index) in question.options" :key="index">
-            <el-radio :label="String.fromCharCode('A'.charCodeAt(0)+ index)" border >
-              {{ option }}</el-radio>
+            <el-radio :label="String.fromCharCode('A'.charCodeAt()+ index)" border >
+              {{String.fromCharCode('A'.charCodeAt()+ index)}}. {{ option }}</el-radio>
           </div>
         </el-radio-group>
       </el-form-item>
@@ -111,7 +118,6 @@ export default {
           this.gotoNextPhase()
         } catch (error) {
           this.$message.error('服务出错,请联系管理员处理')
-          console.log('结束')
         } finally {
           NProgress.done()
           this.loading = false
@@ -123,6 +129,7 @@ export default {
       // 更新阶段
       this.userInfo.phaseNumber = this.userInfo.phaseNumber + 1
       this.userInfo.questionNumber = 1
+      this.userInfo.startTime = Date.now()
       sessionStorage.setItem('userInfo', JSON.stringify(this.userInfo))
       // 获取下一阶段实验类型
       const { data: res } = await this.$http.post('exper/getnextphasestatus', {
@@ -144,11 +151,15 @@ export default {
 </script>
 
 <style lang="less" scoped>
-.el-radio {
-  margin-top: 5px;
-  margin-left: 10px;
-  display: block;
-  width: 100%;
+.el-radio-group {
+  margin-top: 10px;
+  //background-color: #fbfbfb;
+  .el-radio {
+    margin-top: 5px;
+    margin-left: 10px;
+    display: block;
+    width: 100%;
+  }
 }
 
 .button-box {

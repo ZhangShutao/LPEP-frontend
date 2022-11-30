@@ -1,15 +1,14 @@
 <template>
   <div class="container">
-    <container-header :title="experName" :sub-title="'阶段' +phaseName"></container-header>
+    <container-header :title="experName" :sub-title="'阶段' +phaseName" :question-number="questionNumber"></container-header>
       <!--程序编写页面-->
       <el-container>
-        <!--{{Date.now()}}-->
         <el-aside width="700px">
           <el-card>
             <!--倒计时-->
             <div slot="header">
               <el-statistic :value="deadline"  time-indices  @finish="hilarity" format="HH:mm:ss"
-                            title="剩余时间：" class="time-box">
+                            title="剩余时间：">
               </el-statistic>
             </div>
             <!--题干区域-->
@@ -38,20 +37,20 @@
                   element-loading-spinner="el-icon-loading"
                   element-loading-text="测试中……">
                     <!--执行结果-->
-                    <div class="submit-result-box" v-if="executeResult.status">
+                    <div class="submit-result-box"
+                         v-if="executeResult.status">
                       {{ executeResult.status }}<br/>
                       {{ executeResult.errorMsg }}
-                      123
                     </div>
                     <div>
                       <div class="sample-box"
-                           v-if="executeResult.status === 'wrong answer' ||
-                           executeResult.status === 'time limit exceeded'">
-                      最后执行的输入:<br/>
-                        用例编号: {{executeResult.numberOfWrong}}<br/>
-                        测试数据: {{executeResult.wrongCaseInput}}<br/>
-                        标准输出: {{executeResult.standardOutput}}<br/>
-                        实际输出: {{executeResult.userOutput}}
+                           v-if="executeResult.status === 'WRONG_ANSWER' ||
+                           executeResult.status === 'TIME_LIMIT_EXCEEDED'">
+                        最后执行的输入:<br/>
+                        <p>用例编号: {{executeResult.numberOfWrong}}</p>
+                        <p>测试数据: {{executeResult.wrongCaseInput}}</p>
+                        <p>标准输出: {{executeResult.standardOutput}}</p>
+                        <p>实际输出: {{executeResult.userOutput}}</p>
                       </div>
                     </div>
                 </div>
@@ -115,6 +114,7 @@ export default {
       experName: '',
       phaseName: 0,
       startTime: 0,
+      questionNumber: 0,
       source: '',
       // 程序代码
       question: {
@@ -160,6 +160,7 @@ export default {
 
     // 获取问题列表
     async getQuestion () {
+      this.executeResult.status = ''
       this.getExperimentInfo()
       // 判断最后一题
       if (this.question.isLast === 1) {
@@ -177,6 +178,14 @@ export default {
       this.question = res.data
       this.deadline = this.startTime + 1000 * 60 * this.question.timeLimit
       this.source = ''
+    },
+
+    // 获取下一题
+    getNextQuestion () {
+      this.userInfo.questionNumber = this.userInfo.questionNumber + 1
+      this.userInfo.startTime = Date.now()
+      sessionStorage.setItem('userInfo', JSON.stringify(this.userInfo))
+      this.getQuestion()
     },
 
     async gotoNextPhase () {
@@ -207,7 +216,6 @@ export default {
     async handleSubmit () {
       // 清空提交结果;反馈测试中;禁用提交按钮
       this.$set(this.executeResult, status, '')
-      // this.executeResult.status = ''
       this.loading = true
       try {
         const { data: res } = await this.$http.post('/submit/prog_submit', {
@@ -222,11 +230,7 @@ export default {
           this.$alert('本题答案已通过,即将开始下一题', '测试通过', {
             confirmButtonText: '确认',
             callback: () => {
-              // 获取下一题(下一阶段)
-              this.userInfo.questionNumber = this.userInfo.questionNumber + 1
-              this.userInfo.startTime = Date.now()
-              sessionStorage.setItem('userInfo', JSON.stringify(this.userInfo))
-              this.getQuestion()
+              this.getNextQuestion()
             }
           })
         }
@@ -253,11 +257,7 @@ export default {
         this.$alert('本题已放弃,即将开始下一题', '提示', {
           confirmButtonText: '确认',
           callback: () => {
-            // 获取下一题(下一阶段)
-            this.userInfo.questionNumber = this.userInfo.questionNumber + 1
-            this.userInfo.startTime = Date.now()
-            sessionStorage.setItem('userInfo', JSON.stringify(this.userInfo))
-            this.getQuestion()
+            this.getNextQuestion()
           }
         })
       })
@@ -268,10 +268,7 @@ export default {
       this.$alert('本题用时已结束,即将开始下一题', '提示', {
         confirmButtonText: '确认',
         callback: () => {
-          // 获取下一题(下一阶段)
-          this.userInfo.questionNumber = this.userInfo.questionNumber + 1
-          sessionStorage.setItem('userInfo', JSON.stringify(this.userInfo))
-          this.getQuestion()
+          this.getNextQuestion()
         }
       })
     },
@@ -323,25 +320,29 @@ export default {
 
 .right-box {
   padding: 0 15px;
-  .el-input {
-    border: #63a35c 1px solid;
-  }
+  display: flex;
+  flex-direction: column;
 }
 
 .result-box {
   border: #63a35c 1px solid;
   margin-top: 10px;
+  height: auto;
+  flex:1;
   .el-tab-pane {
-    height: 290px;
+    width: 100%;
+    //height: 300px;
+
     padding: 10px;
     .submit-result-box {
-      height: 100px;
+      //height: 50px;
       overflow-y: auto;
-      //border: #63a35c 1px solid;
     }
     .sample-box {
+      height: 200px;
       background-color: #f2f2f4;
       margin: 10px;
+      overflow: auto;
     }
   }
 }
