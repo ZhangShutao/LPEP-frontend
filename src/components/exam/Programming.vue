@@ -46,11 +46,14 @@
                       <div class="sample-box"
                            v-if="executeResult.status === 'WRONG_ANSWER' ||
                            executeResult.status === 'TIME_LIMIT_EXCEEDED'">
-                        最后执行的输入:<br/>
-                        <p>用例编号: <span v-html="executeResult.numberOfWrong"></span></p>
-                        <p>测试数据: <span v-html="executeResult.wrongCaseInput"></span></p>
-                        <p>标准输出: <span v-html="executeResult.standardOutput"></span></p>
-                        <p>实际输出: <span v-html="executeResult.userOutput"></span></p>
+                        最后执行的输入<br/>
+                        <p>用例编号: </p><span v-html="executeResult.numberOfWrong"></span>
+                        <el-divider></el-divider>
+                        <p>测试数据: </p><span v-html="executeResult.wrongCaseInput"></span>
+                        <el-divider></el-divider>
+                        <p>标准输出: </p><span v-html="executeResult.standardOutput"></span>
+                        <el-divider></el-divider>
+                        <p>实际输出: </p><span v-html="executeResult.userOutput"></span>
                       </div>
                     </div>
                 </div>
@@ -225,6 +228,14 @@ export default {
         })
         this.$message.success('提交成功')
         this.executeResult = res.data
+        // this.executeResult = {
+        //   status: 'WRONG_ANSWER',
+        //   errorMsg: null,
+        //   numberOfWrong: 2,
+        //   wrongCaseInput: '% CDLP\n\nchild(tommy).\nhas_toothache(tommy).\n\n#show like_ice_cream/1.',
+        //   standardOutput: 'CDLSolver version: 0.1.6\nSolving...\ndefault model: 1\nx:; y:;\ndefault model: 2\nx:; y:like_ice_cream(tommy);\nSatisfiable\n\nElapsed time: 0.021034s',
+        //   userOutput: 'CDLSolver version: 0.1.6\nSolving...\ndefault model: 1\nx:like_ice_cream(tommy); y:like_ice_cream(tommy);\ndefault model: 2\nx:; y:;\nSatisfiable\n\nElapsed time: 0.005116s\n'
+        // }
         // for (const key in this.executeResult) {
         //   if (key !== 'numberOfWrong' && key !== 'errorMsg') {
         //     this.executeResult[key] = this.executeResult[key].replace(/\n/g, '<br/>')
@@ -351,9 +362,13 @@ export default {
     }
     .sample-box {
       height: 400px;
-      background-color: #f2f2f4;
+      background-color: #fbfbfb;
       margin: 10px;
       overflow: auto;
+      padding: 10px;
+      p {
+        color: red;
+      }
     }
   }
 }
