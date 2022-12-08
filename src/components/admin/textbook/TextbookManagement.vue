@@ -42,6 +42,7 @@
     </div>
 
     <textbook-add-dialog :visible="textbookFormVisible"
+                         @get-textbook-list="getTextbookList"
                          @close-dialog="textbookFormVisible = false"></textbook-add-dialog>
   </div>
 </template>

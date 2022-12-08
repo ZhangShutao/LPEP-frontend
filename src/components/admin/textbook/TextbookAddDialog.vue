@@ -122,7 +122,9 @@ export default {
     },
     handleCloseDialog () {
       this.$refs.textbookFormRef.resetFields()
+      this.fileList = []
       this.$emit('close-dialog')
+      this.$emit('get-textbook-list')
     },
 
     beforeClose () {
