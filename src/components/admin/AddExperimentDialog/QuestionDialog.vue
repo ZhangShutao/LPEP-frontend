@@ -27,13 +27,13 @@
       <el-button @click="handleNextDialog(0)">取 消</el-button>
     </div>
     <!--问卷类型题目-->
-    <questionnaire-dialog :visible.sync="questionnaireVisible"
+    <questionnaire-dialog :visible="questionnaireVisible"
                           :questionList="currentUpdatedQuestions"
                           @finish-add-questions="handlerFinishAddQuestionnaireQuestions"
                           @close-dialog="handleCloseQuestionnaireDialog">
     </questionnaire-dialog>
     <!--编程类型题目-->
-    <programming-dialog :visible.sync="programmingVisible"
+    <programming-dialog :visible="programmingVisible"
                         :questionList="currentUpdatedQuestions"
                         :experimentId="currentExperId"
                         :groupId="currentGroupId"

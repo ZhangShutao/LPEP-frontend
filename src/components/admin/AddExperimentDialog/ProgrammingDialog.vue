@@ -1,6 +1,6 @@
 <template>
   <!--新建实验6-问题录入（编程题）-->
-  <el-dialog title="问题录入" :visible.sync="visible" width="80%" v-if="visible" append-to-body
+  <el-dialog title="问题录入" :visible.sync="visible" width="80%" append-to-body
              :show-close="false"
              :before-close="beforeClose">
     <!--每个问题对应一个表单-->

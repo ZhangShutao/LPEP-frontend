@@ -22,7 +22,7 @@
       <el-table-column label="当前实验所属组别" prop="groupName"></el-table-column>
       <el-table-column label="操作" align="center">
         <template slot-scope="scope">
-          <el-button size="mini" type="danger" @click="handleDeleteUser(scope.row.userId)">删除</el-button>
+          <el-button size="mini" type="danger" @click="handleDeleteUser(scope.row.userId)">从实验中移除用户</el-button>
         </template>
       </el-table-column>
     </el-table>
