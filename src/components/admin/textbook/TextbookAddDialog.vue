@@ -1,6 +1,7 @@
 <template>
   <!--教材信息添加,修改对话框-->
-  <el-dialog :title="textbookFormDialogTitle" :visible.sync="visible" :show-close="false"
+  <el-dialog :title="textbookFormDialogTitle" :visible.sync="visible"
+             :show-close="false"
              :before-close='beforeClose' width="30%">
     <el-form :model="textbookForm" label-width="80px" ref="textbookFormRef" :rules="textbookFormRules">
       <el-form-item label="文件名" prop="name">
@@ -19,22 +20,21 @@
                      :label="group.groupName" :value="group.groupId"></el-option>
         </el-select>
       </el-form-item>
-      <el-form-item labal="教材上传">
+      <el-form-item label="教材上传" prop="fileList">
         <el-upload
           ref="upload"
-          :action="uploadParam.url"
-          :file-list="fileList"
-          :data="textbookForm"
+          action="#"
+          :file-list="textbookForm.fileList"
           :auto-upload="false"
+          :on-change="handleChange"
           :before-upload='handleBeforeUpload'
-          :on-success="handleSuccess"
           accept=".pdf">
-          <el-button size="small" type="primary">点击上传</el-button>
+          <el-button size="small" type="primary">添加文件</el-button>
         </el-upload>
       </el-form-item>
     </el-form>
     <div slot="footer" class="dialog-footer">
-      <el-button type="primary" @click="submitUpload()" :loading="loading">添加</el-button>
+      <el-button type="primary" @click="submitUpload" :loading="loading">上 传</el-button>
       <el-button @click="handleCloseDialog">取 消</el-button>
     </div>
   </el-dialog>
@@ -48,7 +48,12 @@ export default {
   data () {
     return {
       // 新增教材参数
-      textbookForm: {},
+      textbookForm: {
+        name: '',
+        experId: '',
+        groupId: '',
+        fileList: []
+      },
       textbookFormDialogTitle: '',
       textbookFormRules: {
         name: [
@@ -59,6 +64,9 @@ export default {
         ],
         groupId: [
           { required: true, message: '请至少选择一种组别', trigger: 'change' }
+        ],
+        fileList: [
+          { type: 'array', required: true, message: '请添加一个文件', trigger: 'change' }
         ]
       },
       experimentInfo: [],
@@ -68,7 +76,6 @@ export default {
         url: baseUrl + 'admin/createtrainingmaterial',
         typeLimit: 'pdf'
       },
-      fileList: [],
       loading: false
     }
   },
@@ -88,9 +95,17 @@ export default {
       }
       this.experimentInfo = res.data
     },
+
     getGroups (expIndex) {
       this.groupInfo = this.experimentInfo[expIndex].groupInfoList
     },
+
+    // 通过onchanne触发方法获得文件列表
+    handleChange (file, fileList) {
+      this.textbookForm.fileList = fileList
+      this.$refs.textbookFormRef.validateField('fileList')
+    },
+
     handleBeforeUpload (file) {
       const testmsg = file.name.substring(file.name.lastIndexOf('.') + 1)
       if (this.uploadParam.typeLimit.indexOf(testmsg) === -1) {
@@ -98,14 +113,26 @@ export default {
         return false
       }
     },
+
     submitUpload () {
-      this.$refs.textbookFormRef.validate((valid) => {
+      this.$refs.textbookFormRef.validate(async (valid) => {
         if (!valid) {
           return false
         }
         try {
           this.loading = true
-          this.$refs.upload.submit()
+          const param = new FormData()
+          param.append('name', this.textbookForm.name)
+          param.append('experId', this.textbookForm.experId)
+          param.append('groupId', this.textbookForm.groupId)
+          param.append('file', this.textbookForm.fileList[0].raw)
+
+          const { data: res } = await this.$http.post('admin/createtrainingmaterial', param)
+          if (res.status !== 203) {
+            return this.$message.error('教材创建失败,' + res.msg)
+          }
+          this.$message.success('教材创建成功')
+          this.handleCloseDialog()
         } catch (error) {
           this.$message.error('教材添加出错，请联系后台管理员')
         } finally {
@@ -113,18 +140,12 @@ export default {
         }
       })
     },
-    handleSuccess (response) {
-      if (response.status !== 203) {
-        return this.$message.error('教材创建失败,' + response.msg)
-      }
-      this.$message.success('教材创建成功')
-      this.handleCloseDialog()
-    },
+
     handleCloseDialog () {
       this.$refs.textbookFormRef.resetFields()
       this.fileList = []
-      this.$emit('close-dialog')
       this.$emit('get-textbook-list')
+      this.$emit('close-dialog')
     },
 
     beforeClose () {
